@@ -1,16 +1,20 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
+  int yywrap();
+  int yylex();
+  void yyerror();
 
   %}
 
 %token T_bool T_int T_ar  //type
 %token NFon NPro //identificateur
-%token NewAr //new 
-%token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq //operateur
+%token NewAr //new
+%token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk //operateur
 %token True False Var I V //token terminaux
-%token PO PF AO AF CO CF Virgule DPoints //parenthése accolade crochet deux points 
-
+%token PO PF AO AF CO CF Virgule DPoints //parenthése accolade crochet deux points
+%start MP
+%%
 MP: L_vart LD C
 E: E Pl E
 | E Mo E {}
@@ -37,7 +41,7 @@ Et: V CO E CF {}
 C: C Se C {}
 | Et Af E {}
 | V Af E {}
-| Sk {}
+| Sk {printf("Sk\n");}
 | AO C AF {}
 | If E Th C El C {}
 | Wh E Do C {}
@@ -66,8 +70,8 @@ TP: T_bool {}
 | T_ar TP {}
 ;
 
-L_vart: %empty {}
-| L_vartnn {}
+L_vart: %empty {printf("VIDE\n");}
+| L_vartnn {printf("NON VIDE\n");}
 ;
 
 L_vartnn: Var Argt {}
@@ -77,7 +81,7 @@ L_vartnn: Var Argt {}
 D_entp: Dep NPro PO L_argt PF {}
   ;
 
-D_entf: Def NFon PO L_argt PF DPoints TP {}
+D_entf: Def NFon PO L_argt PF DPoints TP {printf("FUNCTION DEF\n ");}
 ;
 
 D: D_entp L_vart C {}
@@ -88,6 +92,12 @@ LD: %empty {}
 | LD D
 ;
 
+%%
+
+void yyerror(char *s){
+  fprintf(stderr, "***ERROR %s\n", s);
+}
+int yywrap(){}
 
 int main(int argc, char **argv){
   yyparse();

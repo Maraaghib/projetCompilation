@@ -2,21 +2,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ppascal.h"
-
 %}
 
-%s Def_Function Def_Procedure 
+%s Def_Function Def_Procedure
 
 CST [1-9][0-9]*|0
-VAR [A-Z]+[a-zA-Z0-9]
+VAR [a-zA-Z]+[a-zA-Z0-9]
 
 %%
 
-<INITIAL>{ 
+<INITIAL>{
 {CST} {return I;}
-{VAR}{return V;}
+
+
+"(" {return PO;}
+")" {return PF;}
+
 "var" {return Var;}
 
+
+":" {return DPoints;}
 ":=" {return Af;}
 "true" {return True;}
 "false" {return False;}
@@ -26,6 +31,7 @@ VAR [A-Z]+[a-zA-Z0-9]
 "else" {return El;}
 "while" {return Wh;}
 "do" {return Do;}
+"skip" {return Sk;}
 
 "+" {return Pl;}
 "-" {return Mo;}
@@ -44,8 +50,12 @@ VAR [A-Z]+[a-zA-Z0-9]
 
 "defun" {return Def;}
 "defpro" {return Dep;}
+
+{VAR} {return NFon;}
 }
 
-[./t/n] {;} //ignore
+[.\t\n] {;} //ignore
+%%
+
 
 //Faire le NFon et le NPro (a gérer avec les états)
