@@ -4,7 +4,11 @@
 
   %}
 
-%token T_bool T_int Def Dep Af True False Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq
+%token T_bool T_int T_ar  //type
+%token NFon NPro //identificateur
+%token NewAr //new 
+%token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq //operateur
+%token True False Var I V //token terminaux 
 
 MP: L_vart LD C
 E: E Pl E
