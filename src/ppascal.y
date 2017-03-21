@@ -8,7 +8,8 @@
 %token NFon NPro //identificateur
 %token NewAr //new 
 %token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq //operateur
-%token True False Var I V //token terminaux 
+%token True False Var I V //token terminaux
+%token PO PF AO AF CO CF Virgule DPoints //parenthése accolade crochet deux points 
 
 MP: L_vart LD C
 E: E Pl E
@@ -19,28 +20,28 @@ E: E Pl E
 | E Eq E {}
 | E And E {}
 | Not E {}
-| ’(’ E ’)’ {}
+| PO E PF {}
 | I {}
 | V {}
 | True {}
 | False {}
-| V ’(’ L_args ’)’ {}
-| NewAr TP ’[’ E ’]’ {}
+| V PO L_args PF {}
+| NewAr TP CO E CF {}
 | Et {}
 ;
 
-Et: V ’[’ E ’]’ {}
-| Et ’[’ E ’]’ {}
+Et: V CO E CF {}
+| Et CO E CF {}
 ;
 
 C: C Se C {}
 | Et Af E {}
 | V Af E {}
 | Sk {}
-| ’{ ’ C ’ }’ {}
+| AO C AF {}
 | If E Th C El C {}
 | Wh E Do C {}
-| V ’(’ L_args ’)’ {}
+| V PO L_args PF {}
   ;
 
 L_args: %empty {}
@@ -48,16 +49,16 @@ L_args: %empty {}
 ;
 
 L_argsnn: E {}
-| E ’,’ L_argsnn {}
+| E Virgule L_argsnn {}
   ;
 
 L_argt: %empty {}
 | L_argtnn {}
 L_argtnn: Argt {}
-| L_argtnn ’,’ Argt {}
+| L_argtnn Virgule Argt {}
   ;
 
-Argt: V ’:’ TP {}
+Argt: V DPoints TP {}
 ;
 
 TP: T_bool {}
@@ -70,13 +71,13 @@ L_vart: %empty {}
 ;
 
 L_vartnn: Var Argt {}
-| L_vartnn ’,’ Var Argt {}
+| L_vartnn Virgule Var Argt {}
   ;
 
-D_entp: Dep NPro ’(’ L_argt ’)’ {}
+D_entp: Dep NPro PO L_argt PF {}
   ;
 
-D_entf: Def NFon ’(’ L_argt ’)’ ’:’ TP {}
+D_entf: Def NFon PO L_argt PF DPoints TP {}
 ;
 
 D: D_entp L_vart C {}
@@ -86,3 +87,9 @@ D: D_entp L_vart C {}
 LD: %empty {}
 | LD D
 ;
+
+
+int main(int argc, char **argv){
+  yyparse();
+  return EXIT_SUCCESS;
+}
