@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "envrion.h"
+#include "environ.h"
 #include "util.h"
 
 NOE Nalloc()
@@ -27,14 +27,14 @@ ENV creer_env(char* etiq, int val, TYPE type)
 {
   ENV e = Envalloc();
 
-  initenv(e, etiq, type);
+  initenv(&e, etiq, type);
   affect(e,etiq,val);
 
   return e;
 }
 
 ENV copier_env(ENV env){
-  ENV copie_env = Envaloc();
+  ENV copie_env = Envalloc();
 
   copie_env->ID = env->ID;
   copie_env->type = env->type;

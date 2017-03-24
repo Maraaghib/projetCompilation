@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "ppascal.h"
+#include "ppascalbison.h"
 %}
 
 %s Def_Function Def_Procedure
