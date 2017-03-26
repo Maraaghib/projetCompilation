@@ -13,6 +13,14 @@
 %token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk //operateur
 %token True False Var I V //token terminaux
 %token PO PF AO AF CO CF Virgule DPoints //parenthése accolade crochet deux points
+
+%left Virgule
+%left Af
+%left If Th El Wh Do
+%left Mo Mu Or Lt Eq And Not Pl
+%left Se 
+%right PO AO CO
+
 %start MP
 %%
 MP: L_vart LD C
@@ -29,24 +37,25 @@ E: E Pl E
 | V {}
 | True {}
 | False {}
-| V PO L_args PF {}
-| NewAr TP CO E CF {}
+| V PO L_args PF /* V ( L_args ) */ {}
+| NewAr TP CO E CF /*NewAr TP [ E ] */{}
 | Et {}
 ;
 
-Et: V CO E CF {}
-| Et CO E CF {}
+Et: V CO E CF /* V [ E ] */{}
+| Et CO E CF /*Et [ E ] */{}
 ;
 
 C: C Se C {}
 | Et Af E {}
 | V Af E {}
 | Sk {printf("Sk\n");}
-| AO C AF {}
+| AO C AF {} //{ C } 
 | If E Th C El C {}
 | Wh E Do C {}
-| V PO L_args PF {}
+| V PO L_args PF /*V ( L_args )*/{} 
   ;
+
 
 L_args: %empty {}
 | L_argsnn {}
@@ -78,10 +87,10 @@ L_vartnn: Var Argt {}
 | L_vartnn Virgule Var Argt {}
   ;
 
-D_entp: Dep NPro PO L_argt PF {}
+D_entp: Dep NPro PO L_argt PF /*Dep NPro ( L_argt )*/{}  
   ;
 
-D_entf: Def NFon PO L_argt PF DPoints TP {printf("FUNCTION DEF\n ");}
+D_entf: Def NFon PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{printf("FUNCTION DEF\n ");}
 ;
 
 D: D_entp L_vart C {}
