@@ -14,9 +14,9 @@ typedef struct noeud{
   struct noeud *FG, *FD;} *NOE;
 
 /* biliste de var ou param */
-typedef struct{
+typedef struct bilenv{
   ENV debut;
-  ENV fin;}BILENV;
+  ENV fin;}*BILENV;
 
 /* listefonctions := liste de triples (identificateur, BILparametres, BILvarloc) */
 typedef struct cellfon{
@@ -24,36 +24,37 @@ typedef struct cellfon{
   BILENV PARAM;    /* pametres formels types   */
   BILENV VARLOC;   /* variables locales typees */
   NOE CORPS;
+  TYPE type;
   struct cellfon *SUIV;} *LFON;
 
 /* biliste de fonctions */
-typedef struct{
+typedef struct bilfon{
   LFON debut;
-  LFON fin;}BILFON;
+  LFON fin;}*BILFON;
 
 
 /*------------------FONCTIONS -----------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-extern int yylex();          /* fonction generee par flex                    */
-extern int yyerror();        /* fonction generee par flex/bison              */
+extern int yylex();          /* fonction generee par flex                    */ //OK (fait par flex)
+extern int yyerror();        /* fonction generee par flex/bison              */ //A faire
 /*---------------------allocation memoire------------------------------------*/
-extern NOE Nalloc();         /* retourne un NOE                              */
-extern LFON  Lfonalloc();    /* retourne un LFON                             */
+extern NOE Nalloc();         /* retourne un NOE                              */ //OK
+extern LFON  Lfonalloc();    /* retourne un LFON                             */ //OK
 /*---------------------parcours d'arbres-------------------------------------*/
-extern void prefix(NOE n);   /* ecrit l'expression n en notation prefixe     */
+extern void prefix(NOE n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
 /*---------------------environnements----------------------------------------*/
-extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */
+extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */ //DONE \/ \/ 
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
-extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/
+extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
 extern ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc);
 /*---------------------bilistes-de-var---------------------------------------*/
-extern void inbilenv(BILENV *prho,char *var);             /* initialise var  */
+extern void inbilenv(BILENV prho,char *var, TYPE t);             /* initialise var  */
 extern BILENV bilenv_vide() ;                  /* retourne une biliste vide  */
 extern BILENV creer_bilenv(ENV var);   /* retourne une biliste a un element  */
 extern BILENV copier_bilenv(BILENV b);   /*pointe vers copie                 */
 extern BILENV concat(BILENV b1, BILENV b2);  /* retourne la concatenation    */
-extern void ecrire_bilenv(BILENV bty);   /* affiche la biliste de quadruplets*/
+extern void ecrire_bilenv(BILENV b);   /* affiche la biliste de quadruplets*/
 /* affecte  la valeur rhs a la variable lhs (rho_lc prioritaire)             */
 extern void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs);
 /*---------------------fonctions --------------------------------------------*/
@@ -70,7 +71,7 @@ extern BILFON concatfn(BILFON bfn1, BILFON bfn2);/* retourne la concatenation*/
 extern BILENV allvars(BILFON bfon);/*les variables de bfon (params puis varloc)*/
 extern void ecrire_bilfon(BILFON bfn);   /* affiche la biliste de fonctions  */
 /*---------------------programmes -------------------------------------------*/
-void ecrire_prog(BILENV argb,BILFON argbf,NOE argno);/* affiche le programme */
+void ecrire_prog(BILENV argb,BILFON argbf,NOE argno);/* affiche le programme */ //DONE /\ /\
 /* --------------------CONSTANTES -------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable     */
 /*---------------------VARIABLES globales -----------------------------------*/

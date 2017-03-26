@@ -4,7 +4,7 @@
 /* ----------------------------types--------------------------------------------*/
 /* environnement := liste de couples (identificateur, entier) */
 
-typedef enum type {integer, booleen, array } TYPE;
+typedef enum type {integer, boolean, array } TYPE;
 
 typedef struct cellenv{
   char *ID;
