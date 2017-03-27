@@ -106,3 +106,8 @@ int valch(ENV rho, char *var)
 }
 
 
+void liberer_env(ENV e){
+  free(e->ID);
+  e->SUIV = NULL;
+  free(e);
+}

@@ -21,7 +21,7 @@ $(CFLEX): src/$(SRCFLEX)
 	flex -o $@ $<
 
 util.o : src/util.c include/util.h environ.o
-	gcc -c -std=c99 $(INCLUDE) -g -o $@ $< environ.o
+	gcc -c -std=c99 $(INCLUDE) -g -o $@ $< 
 
 environ.o : src/environ.c include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<

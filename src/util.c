@@ -5,9 +5,9 @@
 #include "environ.h"
 #include "util.h"
 
-NOE Nalloc()
+Noeud* Nalloc()
 {
-  return((NOE)malloc(sizeof(struct noeud)));
+  return((Noeud*)malloc(sizeof(struct Noeud)));
 }
 
 LFON Lfonalloc()
@@ -17,17 +17,20 @@ LFON Lfonalloc()
   return new_l;
 }
 
-void prefix(NOE n)
 /* ecrit l'expression n en notation prefixe*/
-{ if(n != NULL)
-    {printf("%s ",n->ETIQ);
-      prefix(n->FG);
-      prefix(n->FD);
-    };
+void prefix(Noeud *n){
+  print_tree_ter(n);
 }
 
-ENV creer_env(char* etiq, int val, TYPE type)
-{
+/*****************Noeud ***********************************/
+Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id){}
+
+void print_tree(Noeud* n, FILE* f) {}
+
+void print_tree_ter(Noeud* n) {}
+
+/*****************Biliste d'environnement *****************/
+ENV creer_env(char* etiq, int val, TYPE type){
   ENV e = Envalloc();
 
   initenv(&e, etiq, type);
@@ -54,7 +57,6 @@ ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
   else
     return rech(chaine,rho_gb);
 }
-
 
 /*****************Biliste de Var *****************/
 
@@ -122,8 +124,17 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs){
   return;
 }
 
+void liberer_bilenv(BILENV be){
+  ENV curseur = be->debut;
+  while(curseur!=NULL){
+    be->debut = be->debut->SUIV;
+    liberer_env(curseur);
+    curseur = be->debut;
+  }
+}
+
 /*****************fonctions*****************/
-LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, NOE com, TYPE tp) {
+LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, Noeud* com, TYPE tp) {
   LFON new_f = Lfonalloc();
   strcpy(new_f->ID,nfon);
   new_f->PARAM = lparam;
@@ -179,6 +190,14 @@ LFON rechfon(char* chaine, LFON listident){
   return curseur;
 }
 
+void liberer_lfon(LFON fon){
+  free(fon->ID);
+  liberer_bilenv(fon->PARAM);
+  liberer_bilenv(fon->VARLOC);
+  //liberer_arbre(fon->CORPS);
+  free(fon);
+}
+  
 /*****************Bilfon*****************/
 
 BILFON bilfon_vide(){
@@ -238,8 +257,16 @@ void ecrire_bilfon(BILFON bfn){
   }
 }
 
+void liberer_bilfon(BILFON bfon){
+  LFON curseur = bfon->debut;
+  while(curseur != NULL){
+    bfon->debut = bfon->debut->SUIV;
+    liberer_lfon(curseur);
+    curseur = bfon->debut;
+  }
+}
 
-void ecrire_prog(BILENV argb, BILFON argbf, NOE argno){
+void ecrire_prog(BILENV argb, BILFON argbf, Noeud* argno){
   printf("/***** Arguments global *****/\n");
   ecrire_bilenv(argb);
   printf("/***** Fonctions *****/\n");
