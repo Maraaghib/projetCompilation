@@ -4,10 +4,11 @@
 #include "ppascalbison.h"
 %}
 
+%option yylineno
 %s Def_Function Def_Procedure
 
 CST [1-9][0-9]*|0
-VAR [a-zA-Z]+[a-zA-Z0-9]
+VAR [a-zA-Z]+[a-zA-Z0-9]*
 
 %%
 
@@ -17,6 +18,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]
 
 "(" {return PO;}
 ")" {return PF;}
+"," {return Virgule;}
 
 "var" {return Var;}
 

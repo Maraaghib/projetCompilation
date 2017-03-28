@@ -4,8 +4,11 @@
   int yywrap();
   int yylex();
   void yyerror();
+  extern int yylineno;
 
   %}
+
+%error-verbose
 
 %token T_bool T_int T_ar  //type
 %token NFon NPro //identificateur
@@ -65,13 +68,14 @@ L_argsnn: E {}
 | E Virgule L_argsnn {}
   ;
 
-L_argt: %empty {}
-| L_argtnn {}
-L_argtnn: Argt {}
-| L_argtnn Virgule Argt {}
+L_argt: %empty {printf("Largt vide\n");}
+| L_argtnn {printf("argtnn\n");}
+
+L_argtnn: Argt {printf("argt\n");}
+| L_argtnn Virgule Argt {printf("argtnn virgule\n");}
   ;
 
-Argt: V DPoints TP {}
+Argt: V DPoints TP {printf("argt DPoints\n");}
 ;
 
 TP: T_bool {}
@@ -104,7 +108,7 @@ LD: %empty {}
 %%
 
 void yyerror(char *s){
-  fprintf(stderr, "***ERROR %s\n", s);
+  fprintf(stderr, "***ERROR l : %d  %s\n", yylineno, s);
 }
 int yywrap(){}
 

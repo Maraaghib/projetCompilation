@@ -37,11 +37,11 @@ typedef struct bilfon{
 
 /*******************ARBRES****************************************************/
 /* Initialise un noeud , avec pour data le char *. */
-Noeud *create_noeud(Noeud *, Noeud *, char *);
+Noeud *create_noeud(Noeud *, Noeud *, char *); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
-void print_tree(Noeud *, FILE *);
+void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
-void print_tree_ter(Noeud *);
+void print_tree_ter(Noeud *);  // A RECUP
 /* Produit l'environnement imp à partir de l'arbre (noeud). */
 //int env_imp(Noeud *, ENV *);
 /* Produit l'environnement c3a à partir d'un bilquad. */
@@ -69,7 +69,7 @@ extern LFON  Lfonalloc();    /* retourne un LFON                             */ 
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
 /*---------------------environnements----------------------------------------*/
-extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */ //DONE \/ \/ 
+extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
@@ -83,7 +83,7 @@ extern BILENV concat(BILENV b1, BILENV b2);  /* retourne la concatenation    */
 extern void ecrire_bilenv(BILENV b);   /* affiche la biliste de quadruplets*/
 /* affecte  la valeur rhs a la variable lhs (rho_lc prioritaire)             */
 extern void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs);
-extern void liberer_bilenv(BILENV be); /*libére tout l'environnement */ 
+extern void liberer_bilenv(BILENV be); /*libére tout l'environnement */
 /*---------------------fonctions --------------------------------------------*/
 extern LFON creer_fon(char *nfon, BILENV lparam,BILENV lvars,Noeud* com,TYPE tp);
 /* pointe vers cette fonction */
@@ -98,7 +98,7 @@ extern BILFON copier_bilfon(BILFON bfn);/* pointe vers une copie             */
 extern BILFON concatfn(BILFON bfn1, BILFON bfn2);/* retourne la concatenation*/
 extern BILENV allvars(BILFON bfon);/*les variables de bfon (params puis varloc)*/
 extern void ecrire_bilfon(BILFON bfn);   /* affiche la biliste de fonctions  */
-extern void liberer_bilfon(BILFON bfon); /*libére toute la bilfon */ 
+extern void liberer_bilfon(BILFON bfon); /*libére toute la bilfon */
 /*---------------------programmes -------------------------------------------*/
 void ecrire_prog(BILENV argb,BILFON argbf,Noeud* argno);/* affiche le programme */ //DONE /\ /\
 /* --------------------CONSTANTES -------------------------------------------*/
@@ -109,4 +109,3 @@ void ecrire_prog(BILENV argb,BILFON argbf,Noeud* argno);/* affiche le programme 
 //extern BILENV benv;          /* environnement global              (y.tab.c)*/
 //extern BILFON lfonctions;    /* liste des fonctions globale       (y.tab.c)*/
 #endif
-
