@@ -18,7 +18,7 @@
 %left Af
 %left If Th El Wh Do
 %left Mo Mu Or Lt Eq And Not Pl
-%left Se 
+%left Se
 %right PO AO CO
 
 %start MP
@@ -50,10 +50,10 @@ C: C Se C {}
 | Et Af E {}
 | V Af E {}
 | Sk {printf("Sk\n");}
-| AO C AF {} //{ C } 
+| AO C AF {} //{ C }
 | If E Th C El C {}
 | Wh E Do C {}
-| V PO L_args PF /*V ( L_args )*/{} 
+| V PO L_args PF /*V ( L_args )*/{}
   ;
 
 
@@ -85,12 +85,12 @@ L_vart: %empty {printf("VIDE\n");}
 
 L_vartnn: Var Argt {}
 | L_vartnn Virgule Var Argt {}
-  ;
+;
 
-D_entp: Dep NPro PO L_argt PF /*Dep NPro ( L_argt )*/{}  
-  ;
+D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{}
+;
 
-D_entf: Def NFon PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{printf("FUNCTION DEF\n ");}
+D_entf: Def V PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{printf("FUNCTION DEF\n ");}
 ;
 
 D: D_entp L_vart C {}

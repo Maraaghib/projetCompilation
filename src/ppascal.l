@@ -51,7 +51,8 @@ VAR [a-zA-Z]+[a-zA-Z0-9]
 "defun" {return Def;}
 "defpro" {return Dep;}
 
-{VAR} {return NFon;}
+{VAR} {return V;}
+
 }
 
 [.\t\n] {;} //ignore
