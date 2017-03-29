@@ -41,7 +41,7 @@ typedef struct bilfon{
 
 /*******************ARBRES****************************************************/
 /* Initialise un noeud , avec pour data le char *. */
-Noeud *create_noeud(Noeud *, Noeud *, char *); // A RECUP
+Noeud *create_noeud(Noeud *, Noeud *, char *, TYPE ,TOKENTYPE); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
 void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
@@ -51,7 +51,7 @@ void print_tree_ter(Noeud *);  // A RECUP
 /*------------------FONCTIONS -----------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 extern int yylex();          /* fonction generee par flex                    */ //OK (fait par flex)
-extern int yyerror();        /* fonction generee par flex/bison              */ //A faire
+extern void yyerror();        /* fonction generee par flex/bison              */ //A faire
 /*---------------------allocation memoire------------------------------------*/
 extern Noeud *Nalloc();         /* retourne un Noeud                              */ //OK
 extern LFON  Lfonalloc();    /* retourne un LFON                             */ //OK

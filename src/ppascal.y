@@ -1,18 +1,22 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
+  #include "util.h"
+  #include "environ.h"
   int yywrap();
   int yylex();
   void yyerror();
   extern int yylineno;
 
+  ENV env_cour;//= Envalloc();
+  
   %}
 
 %error-verbose
 
 %union{
   struct Noeud * Noeud;
-  TYPE etype;
+  //enum type etype;
  }
 
 %token T_bool T_int T_ar  //type
@@ -29,7 +33,7 @@
 %left Se
 %right PO AO CO
 
-%type<Noeud> E Et C L_argsnn L_argtnn Argt L_varnn
+%type<Noeud> E Et C L_argsnn L_argtnn Argt
 %type<etype> TP
 
 %start MP
@@ -119,6 +123,7 @@ LD: %empty {}
 void yyerror(char *s){
   fprintf(stderr, "***ERROR l : %d  %s\n", yylineno, s);
 }
+
 int yywrap(){}
 
 int main(int argc, char **argv){
