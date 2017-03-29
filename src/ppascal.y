@@ -10,6 +10,11 @@
 
 %error-verbose
 
+%union{
+  struct Noeud * Noeud;
+  TYPE etype;
+ }
+
 %token T_bool T_int T_ar  //type
 %token NFon NPro //identificateur
 %token NewAr //new
@@ -24,10 +29,14 @@
 %left Se
 %right PO AO CO
 
+%type<Noeud> E Et C L_argsnn L_argtnn Argt L_varnn
+%type<etype> TP
+
 %start MP
 %%
 MP: L_vart LD C
-E: E Pl E
+
+E: E Pl E {}
 | E Mo E {}
 | E Mu E {}
 | E Or E {}

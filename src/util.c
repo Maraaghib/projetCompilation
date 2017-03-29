@@ -23,11 +23,23 @@ void prefix(Noeud *n){
 }
 
 /*****************Noeud ***********************************/
-Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id){}
+Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,TYPE ntype, TOKENTYPE tk){
+  Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
+  new_noeud->gauche = fgauche;
+  new_noeud->droit = fdroit;
+  new_noeud->data = id;
+  new_noeud->ttype = ntype;
+  new_noeud->tokentype = tk;
+
+  return new_noeud;
+
+}
 
 void print_tree(Noeud* n, FILE* f) {}
 
-void print_tree_ter(Noeud* n) {}
+void print_tree_ter(Noeud* n) {
+
+}
 
 /*****************Biliste d'environnement *****************/
 ENV creer_env(char* etiq, int val, TYPE type){

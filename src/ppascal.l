@@ -5,7 +5,7 @@
 %}
 
 %option yylineno
-%s Def_Function Def_Procedure
+%s Commentaire
 
 CST [1-9][0-9]*|0
 VAR [a-zA-Z]+[a-zA-Z0-9]*
@@ -55,10 +55,14 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 
 {VAR} {return V;}
 
+"/*" {BEGIN Commentaire;}
+
 }
 
+<Commentaire>"*/" {BEGIN INITIAL;}
+<Commentaire>. {;}
+
 [.\t\n] {;} //ignore
+
 %%
 
-
-//Faire le NFon et le NPro (a gérer avec les états)
