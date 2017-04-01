@@ -47,11 +47,20 @@ int initenv(ENV *prho,char *var, TYPE type)
 /* retourne (arg1 op arg2) */
 int eval(char * op, int arg1, int arg2){
   if (!strcmp(op, "Pl"))
-	 return(arg1 + arg2);
+	 return (arg1 + arg2);
   if (!strcmp(op, "Mo"))
-    return(arg1 - arg2);
+    return (arg1 - arg2);
   if (!strcmp(op, "Mu"))
-    return(arg1 * arg2);
+    return (arg1 * arg2);
+  // passer 0 à arg2 pour le cas "Not"
+  if (!strcmp (op, "And") | !strcmp(op, "Not"))
+    return (arg1 & arg2);
+  if (!strcmp(op, "Or"))
+    return (arg1 | arg2);
+  if (!strcmp(op, "Lt"))
+    return (arg1 < arg2);
+  if (!strcmp(op, "Eq"))
+    return (arg1 == arg2);
   return 0;
 }
 
