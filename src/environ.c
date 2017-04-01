@@ -45,20 +45,16 @@ int initenv(ENV *prho,char *var, TYPE type)
     }
 }
 /* retourne (arg1 op arg2) */
-int eval(int op, int arg1, int arg2)
-{switch(op)
-    {case Pl:
-	return(arg1 + arg2);
-    case Mo:
-      return(arg1 - arg2);
-    case Mu:
-      return(arg1 * arg2);
-    default:
-      return(0);
-    }
-  return(0);
+int eval(char * op, int arg1, int arg2){
+  if (!strcmp(op, "Pl"))
+	 return(arg1 + arg2);
+  if (!strcmp(op, "Mo"))
+    return(arg1 - arg2);
+  if (!strcmp(op, "Mu"))
+    return(arg1 * arg2);
+  return 0;
 }
- 
+
 /* retourne l'adresse de la cellule contenant chaine. NULL si la chaine est absente */
 ENV rech(char *chaine, ENV listident)
 {if (listident!=NULL)
@@ -83,14 +79,14 @@ int affect(ENV rho, char *var, int val)
     return(EXIT_FAILURE);
 }
 
-/* affiche l'environnement */  
+/* affiche l'environnement */
 int ecrire_env(ENV rho)
 { if (rho==NULL)
     {printf("fin d' environnement \n");
       return(EXIT_SUCCESS);}
   else
     {printf("variable %s valeur %d \n",rho->ID,rho->VAL);
-      ecrire_env(rho->SUIV); 
+      ecrire_env(rho->SUIV);
       return(EXIT_SUCCESS);
     };
 }
