@@ -3,13 +3,14 @@
   #include <stdlib.h>
   #include "util.h"
   #include "environ.h"
+  #include "interp.h"
   int yywrap();
   int yylex();
   void yyerror();
   extern int yylineno;
 
   ENV env_cour;//= Envalloc();
-  
+
   %}
 
 %error-verbose
