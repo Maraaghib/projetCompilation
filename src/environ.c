@@ -20,12 +20,13 @@ ENV Envalloc()
   return e;
 }
 
+
 /*-------------------------------------------------------------------*/
 /*-----------------------------environnements------------------------*/
 
 /* initialise l'environnement *prho par  var=0    */
 /* la chaine var est copiee dans l' environnement */
-int initenv(ENV *prho,char *var, TYPE type)
+int initenv(ENV *prho,char *var, int type)
 {ENV pos, newcell;
   pos=rech(var,*prho);/* adresse de la cellule contenant var */
   if (pos == NULL)

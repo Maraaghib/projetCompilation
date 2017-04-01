@@ -8,12 +8,14 @@ typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
 
 /* ----------------------------types--------------------------------------------*/
 
-
-/* Structure representant un arbre binaire. */
+ 
+/* Structure representant un arbre binaire.
+remplie en priorité a gauche (c.a.d. si un noeud doit 
+avoir un seul fils alors il sera à gauche) */
 typedef struct Noeud Noeud;
 struct Noeud{
   char *data;
-  TYPE ttype; //enum of identifier integer|boolean|array
+  int type_var; // correspond au valeur de l'enum contenu dans ppasclabison.h
   TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
   Noeud *droit;
   Noeud *gauche;
@@ -41,7 +43,7 @@ typedef struct bilfon{
 
 /*******************ARBRES****************************************************/
 /* Initialise un noeud , avec pour data le char *. */
-Noeud *create_noeud(Noeud *, Noeud *, char *, TYPE ,TOKENTYPE); // A RECUP
+Noeud *create_noeud(Noeud *, Noeud *, char *, int ,TOKENTYPE); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
 void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
@@ -58,13 +60,13 @@ extern LFON  Lfonalloc();    /* retourne un LFON                             */ 
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
 /*---------------------environnements----------------------------------------*/
-extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */ //DONE \/ \/
+extern ENV creer_env(char *etiq, int val, int type);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
 extern ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc);
 /*---------------------bilistes-de-var---------------------------------------*/
-extern void inbilenv(BILENV prho,char *var, TYPE t);             /* initialise var  */
+extern void inbilenv(BILENV prho,char *var, int t);             /* initialise var  */
 extern BILENV bilenv_vide() ;                  /* retourne une biliste vide  */
 extern BILENV creer_bilenv(ENV var);   /* retourne une biliste a un element  */
 extern BILENV copier_bilenv(BILENV b);   /*pointe vers copie                 */

@@ -8,7 +8,7 @@ typedef enum type {integer, boolean, array } TYPE;
 
 typedef struct cellenv{
   char *ID;
-  TYPE type;
+  int type;
   int  VAL;
   struct cellenv *SUIV;} *ENV;
 
@@ -18,9 +18,9 @@ typedef struct cellenv{
 /*------------------FONCTIONS ---------------------------------------------------*/
 /*---------------------allocation memoire----------------------------------------*/
 extern char *Idalloc();      /* retourne un tableau de MAXIDENT char             */
-extern ENV Envalloc();       /* retourne un ENV                                  */
+extern ENV Envalloc();       /* retourne un ENV                               */   
 /*---------------------environnements--------------------------------------------*/
-extern int initenv(ENV *prho,char *var, TYPE t);/* initialise l'ident var dans *prho*/
+extern int initenv(ENV *prho,char *var, int t);/* initialise l'ident var dans *prho*/
 extern int ecrire_env(ENV rho);/* affiche l'environnement                        */
 extern int eval(int op, int arg1, int arg2); /* retourne (arg1 op arg2)          */
 extern ENV rech(char *chaine, ENV listident);/* retourne la position de chaine   */

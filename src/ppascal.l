@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ppascalbison.h"
+
+
 %}
 
 %option yylineno
@@ -13,7 +15,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 %%
 
 <INITIAL>{
-{CST} {return I;}
+{CST} {yylval.terminal = strdup(yytext);return I;}
 
 
 "(" {return PO;}
@@ -53,7 +55,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 "defun" {return Def;}
 "defpro" {return Dep;}
 
-{VAR} {return V;}
+{VAR} {yylval.terminal = strdup(yytext);return V;}
 
 "/*" {BEGIN Commentaire;}
 
