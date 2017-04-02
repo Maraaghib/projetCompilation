@@ -19,7 +19,7 @@ LFON Lfonalloc()
 
 /* ecrit l'expression n en notation prefixe*/
 void prefix(Noeud *n){
-  print_tree_ter(n);
+  //print_tree_ter(n);
 }
 
 /*****************Noeud ***********************************/
@@ -27,7 +27,8 @@ Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype, TOKENTYPE 
   Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
   new_noeud->gauche = fgauche;
   new_noeud->droit = fdroit;
-  new_noeud->data = id;
+  new_noeud->data = Idalloc();
+  strcpy(new_noeud->data,id);
   new_noeud->type_var = ntype;
   new_noeud->tokentype = tk;
 
@@ -40,8 +41,10 @@ void print_tree(Noeud* n, FILE* f) {}
 void print_tree_ter(Noeud* n) {
   if(n!= NULL){
     printf("%s ",n->data);
-    print_tree_ter(n->gauche);
-    print_tree_ter(n->droit);
+    if( n->gauche != NULL)
+      print_tree_ter(n->gauche);
+    if(n->droit != NULL)
+      print_tree_ter(n->droit);
   }
   //else
     // printf("Arbre vide\n");
@@ -59,13 +62,7 @@ ENV creer_env(char* etiq, int val, int type){
 }
 
 ENV copier_env(ENV env){
-  ENV copie_env = Envalloc();
-
-  strcpy(copie_env->ID,env->ID);
-  copie_env->type = env->type;
-  copie_env->VAL = env->VAL;
-
-  return copie_env;
+  return creer_env(env->ID,env->type,env->VAL);
 }
 
 //Regarde d'abord dans l'environnement rho_lc (environnement local)
@@ -115,6 +112,8 @@ BILENV copier_bilenv(BILENV b){
   ENV curseur, copie_curseur;
   curseur = b->debut;
   copie_curseur = copier_env(curseur);
+  copie_b->debut = copie_curseur;
+  curseur = curseur->SUIV;
 
   while(curseur != NULL){
     copie_curseur->SUIV = copier_env(curseur);
@@ -262,12 +261,11 @@ BILFON copier_bilfon(BILFON bfn){
 }
 
 BILFON concatfn(BILFON b1, BILFON b2){
-  BILFON b_cat, b_cat2;
-  b_cat = copier_bilfon(b1);
-  b_cat2 = copier_bilfon(b2);
-  b_cat->fin->SUIV = b_cat2->debut;
-  b_cat->fin = b_cat2->fin;
-
+  if(b1 == NULL)
+    return b2;
+  b1->fin = b2->debut;
+  b1->fin->SUIV = b2->fin;
+  
   return b1;
 }
 
@@ -277,11 +275,13 @@ BILFON concatfn(BILFON b1, BILFON b2){
   }*/
 
 void ecrire_bilfon(BILFON bfn){
-  LFON curseur = bfn->debut;
-
-  while(curseur != NULL){
-    ecrire_fon(curseur);
-    curseur = curseur->SUIV;
+  if(bfn != NULL){
+    LFON curseur = bfn->debut;
+    
+    while(curseur != NULL){
+      ecrire_fon(curseur);
+      curseur = curseur->SUIV;
+    }
   }
 }
 
@@ -295,10 +295,12 @@ void liberer_bilfon(BILFON bfon){
 }
 
 void ecrire_prog(BILENV argb, BILFON argbf, Noeud* argno){
-  printf("/***** Arguments global *****/\n");
+  printf("/**Programme avant execution !**/\n");
+  printf("/***** Variables globales *****/\n");
   ecrire_bilenv(argb);
   printf("/***** Fonctions *****/\n");
   ecrire_bilfon(argbf);
   printf("/***** prog principal *****/\n");
-  prefix(argno);
+  //prefix(argno);
+  printf("\n");
 }
