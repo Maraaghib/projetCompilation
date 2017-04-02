@@ -20,12 +20,13 @@ ENV Envalloc()
   return e;
 }
 
+
 /*-------------------------------------------------------------------*/
 /*-----------------------------environnements------------------------*/
 
 /* initialise l'environnement *prho par  var=0    */
 /* la chaine var est copiee dans l' environnement */
-int initenv(ENV *prho,char *var, TYPE type)
+int initenv(ENV *prho,char *var, int type)
 {ENV pos, newcell;
   pos=rech(var,*prho);/* adresse de la cellule contenant var */
   if (pos == NULL)
@@ -48,17 +49,25 @@ int initenv(ENV *prho,char *var, TYPE type)
 int eval(int op, int arg1, int arg2)
 {switch(op)
     {case Pl:
-	return(arg1 + arg2);
+	     return(arg1 + arg2);
     case Mo:
       return(arg1 - arg2);
     case Mu:
       return(arg1 * arg2);
+    case And: case Not:
+      return (arg1 & arg2);
+    case Or:
+      return (arg1 | arg2);
+    case Lt:
+      return (arg1 < arg2);
+    case Eq:
+      return (arg1 == arg2);
     default:
       return(0);
     }
   return(0);
 }
- 
+
 /* retourne l'adresse de la cellule contenant chaine. NULL si la chaine est absente */
 ENV rech(char *chaine, ENV listident)
 {if (listident!=NULL)
@@ -83,14 +92,14 @@ int affect(ENV rho, char *var, int val)
     return(EXIT_FAILURE);
 }
 
-/* affiche l'environnement */  
+/* affiche l'environnement */
 int ecrire_env(ENV rho)
 { if (rho==NULL)
     {printf("fin d' environnement \n");
       return(EXIT_SUCCESS);}
   else
     {printf("variable %s valeur %d \n",rho->ID,rho->VAL);
-      ecrire_env(rho->SUIV); 
+      ecrire_env(rho->SUIV);
       return(EXIT_SUCCESS);
     };
 }

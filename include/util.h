@@ -8,12 +8,14 @@ typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
 
 /* ----------------------------types--------------------------------------------*/
 
-
-/* Structure representant un arbre binaire. */
+ 
+/* Structure representant un arbre binaire.
+remplie en priorité a gauche (c.a.d. si un noeud doit 
+avoir un seul fils alors il sera à gauche) */
 typedef struct Noeud Noeud;
 struct Noeud{
   char *data;
-  //TYPE ttype; //enum of identifier integer|boolean|array
+  int type_var; // correspond au valeur de l'enum contenu dans ppasclabison.h
   TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
   Noeud *droit;
   Noeud *gauche;
@@ -41,45 +43,30 @@ typedef struct bilfon{
 
 /*******************ARBRES****************************************************/
 /* Initialise un noeud , avec pour data le char *. */
-Noeud *create_noeud(Noeud *, Noeud *, char *); // A RECUP
+Noeud *create_noeud(Noeud *, Noeud *, char *, int ,TOKENTYPE); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
 void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
 void print_tree_ter(Noeud *);  // A RECUP
-/* Produit l'environnement imp à partir de l'arbre (noeud). */
-//int env_imp(Noeud *, ENV *);
-/* Produit l'environnement c3a à partir d'un bilquad. */
-//ENV env_c3a(BILQUAD);
-/* Produit le code c3a à partir d'un code imp. */
-//BILQUAD imp_c3a(Noeud *);
-/* Permet de créer la dernière étiquette du code c3a. */
-//char *etiq_fin();
-/* Produit le code y86 à partir du code c3a. */
-//void c3a_y86(BILQUAD);
-/* Copie Init dans un fichier. */
-//void debut_y86(FILE *);
-/* Copie dans un fichier , MUL , MULPLUS ...
- * Initialise Data avec les variables de l'environnement. */
-//void fin_y86(FILE *, ENV *);
 
 
 /*------------------FONCTIONS -----------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 extern int yylex();          /* fonction generee par flex                    */ //OK (fait par flex)
-extern int yyerror();        /* fonction generee par flex/bison              */ //A faire
+extern void yyerror();        /* fonction generee par flex/bison              */ //A faire
 /*---------------------allocation memoire------------------------------------*/
 extern Noeud *Nalloc();         /* retourne un Noeud                              */ //OK
 extern LFON  Lfonalloc();    /* retourne un LFON                             */ //OK
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
 /*---------------------environnements----------------------------------------*/
-extern ENV creer_env(char *etiq, int val, TYPE type);/*pointe vers cette var            */ //DONE \/ \/
+extern ENV creer_env(char *etiq, int val, int type);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
 extern ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc);
 /*---------------------bilistes-de-var---------------------------------------*/
-extern void inbilenv(BILENV prho,char *var, TYPE t);             /* initialise var  */
+extern void inbilenv(BILENV prho,char *var, int t);             /* initialise var  */
 extern BILENV bilenv_vide() ;                  /* retourne une biliste vide  */
 extern BILENV creer_bilenv(ENV var);   /* retourne une biliste a un element  */
 extern BILENV copier_bilenv(BILENV b);   /*pointe vers copie                 */

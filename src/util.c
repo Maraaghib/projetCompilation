@@ -23,19 +23,38 @@ void prefix(Noeud *n){
 }
 
 /*****************Noeud ***********************************/
-Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id){}
+Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype, TOKENTYPE tk){
+  Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
+  new_noeud->gauche = fgauche;
+  new_noeud->droit = fdroit;
+  new_noeud->data = id;
+  new_noeud->type_var = ntype;
+  new_noeud->tokentype = tk;
+
+  return new_noeud;
+
+}
 
 void print_tree(Noeud* n, FILE* f) {}
 
-void print_tree_ter(Noeud* n) {}
+void print_tree_ter(Noeud* n) {
+  if(n!= NULL){
+    printf("%s ",n->data);
+    print_tree_ter(n->gauche);
+    print_tree_ter(n->droit);
+  }
+  //else
+    // printf("Arbre vide\n");
+
+}
 
 /*****************Biliste d'environnement *****************/
-ENV creer_env(char* etiq, int val, TYPE type){
+ENV creer_env(char* etiq, int val, int type){
   ENV e = Envalloc();
-
-  initenv(&e, etiq, type);
-  affect(e,etiq,val);
-
+  strcpy(e->ID,etiq);
+  e->VAL = val;
+  e->type = type;
+  e->SUIV = NULL;
   return e;
 }
 
@@ -51,18 +70,25 @@ ENV copier_env(ENV env){
 
 //Regarde d'abord dans l'environnement rho_lc (environnement local)
 ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
-  ENV e = rech(chaine,rho_lc);
-  if( e != NULL)
-    return e;
-  else
-    return rech(chaine,rho_gb);
+  if( chaine != NULL || rho_gb != NULL || rho_lc != NULL){
+    ENV e = rech(chaine,rho_lc);
+    if( e != NULL)
+      return e;
+    else
+      return rech(chaine,rho_gb);
+  }
+  return NULL;
 }
 
 /*****************Biliste de Var *****************/
 
-void inbilenv(BILENV phro, char * var, TYPE t){
-  ENV new_e = Envalloc();
-  initenv(&new_e,var, t);
+void inbilenv(BILENV phro, char * var, int t){
+  ENV new_e =creer_env(var,0,t);
+  if(phro->debut == NULL){
+    phro->debut = new_e;
+    phro->fin = new_e;
+  }
+  else
   phro->fin->SUIV = new_e;
   phro->fin = new_e;
 }
@@ -78,8 +104,8 @@ BILENV bilenv_vide(){
 
 BILENV creer_bilenv(ENV var){
   BILENV new_be = bilenv_vide();
-  new_be->debut = var ;
-  new_be->fin = var ;
+  new_be->debut = var;
+  new_be->fin = var;
 
   return new_be;
 }
@@ -101,12 +127,14 @@ BILENV copier_bilenv(BILENV b){
 }
 
 BILENV concat(BILENV b1, BILENV b2){
-  BILENV b_cat1 = copier_bilenv(b1);
-  BILENV b_cat2 = copier_bilenv(b2);
-  
-  b_cat1->fin->SUIV = b_cat2->debut;
-  b_cat1->fin = b_cat2->fin;
-
+  if(b1->debut == NULL){
+    b1->debut = b2->debut;
+    b1->fin = b2->fin;
+  }
+  else{
+    b1->fin->SUIV = b2->debut;
+    b1->fin = b2->fin;
+  }
   return b1;
 }
 

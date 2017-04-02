@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ppascalbison.h"
+
+
 %}
 
 %option yylineno
-%s Def_Function Def_Procedure
+%s Commentaire
 
 CST [1-9][0-9]*|0
 VAR [a-zA-Z]+[a-zA-Z0-9]*
@@ -13,7 +15,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 %%
 
 <INITIAL>{
-{CST} {return I;}
+{CST} {yylval.terminal = strdup(yytext);return I;}
 
 
 "(" {return PO;}
@@ -53,12 +55,16 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 "defun" {return Def;}
 "defpro" {return Dep;}
 
-{VAR} {return V;}
+{VAR} {yylval.terminal = strdup(yytext);return V;}
+
+"/*" {BEGIN Commentaire;}
 
 }
 
+<Commentaire>"*/" {BEGIN INITIAL;}
+<Commentaire>. {;}
+
 [.\t\n] {;} //ignore
+
 %%
 
-
-//Faire le NFon et le NPro (a gérer avec les états)
