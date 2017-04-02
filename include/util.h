@@ -13,7 +13,7 @@ typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
 typedef struct Noeud Noeud;
 struct Noeud{
   char *data;
-  TYPE ttype; //enum of identifier integer|boolean|array
+  //TYPE ttype; //enum of identifier integer|boolean|array
   TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
   Noeud *droit;
   Noeud *gauche;
