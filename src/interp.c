@@ -4,7 +4,7 @@
 #include "interp.h"
 #include "util.h"
 
-void sem(BILENV benv, BILENV benv_loc, Noeud *noeud){
+void sem(BILENV benv, BILFON bfon, Noeud *noeud){
   if ( noeud == NULL )
     return ;
   char *etiq;
@@ -17,7 +17,7 @@ void sem(BILENV benv, BILENV benv_loc, Noeud *noeud){
       printf("etiq vaut %s\n",etiq );
       value = semval(benv, benv_loc, noeud->droit);
       printf("valeur : %d\n", value);
-      affectb(benv, benv_loc, etiq , value);
+      affectb(benv, bfon->VARLOC, etiq , value);
     } // cas d'un tableau
     /*
     else if (noeud->gauche->ttype == array){
@@ -71,6 +71,10 @@ int semval(BILENV benv, BILENV benv_loc, Noeud *noeud){
   }
 }
 
+
+/* revoie 1 si la chaine src correspond à
+ * un operateur binaire ou 0 sinon.
+ */
 int op_binaire(char *src){
   char *tab[7] = {"Pl", "Mo", "Mu", "And", "Or", "Lt", "Eq"};
   for (int i = 0; i < 7 ; i++)
