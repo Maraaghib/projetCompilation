@@ -53,7 +53,8 @@ MP: L_vart LD C {
   env_global = $1;
   //ecrire_bilenv($1);
   //print_tree_ter($3); printf("\n");
-    ecrire_prog($1,$2,$3);}
+   ecrire_prog($1,$2,$3);
+ }
 
 E: E Pl E {$$ = create_noeud($1,$3,"Pl",0,op);}
 | E Mo E {$$ = create_noeud($1,$3,"Mo",0,op);}
@@ -82,14 +83,15 @@ Et: V CO E CF /* V [ E ] */{}
 | Et CO E CF /*Et [ E ] */{}
 ;
 
-C: C Se C {$$ = create_noeud($1,$3,"Se",0,op);}
-| Et Af E {$$ = create_noeud($1,$3,"Af",0,op);}
+C: C Se C {$$ = create_noeud($1,$3,"Se",0,op);printf("lol\n");printf("%s", $$->data);}
+| Et Af E {$$ = create_noeud($1,$3,"Af",0,op);printf("lol\n");printf("%s", $$->data);}
 | V Af E {ENV pos = rech2($1,env_cour->debut,env_global->debut);
    if(pos == NULL){
      yyerror("Variable non déclaré");
      exit(EXIT_FAILURE);
    }
    $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->type,variable),$3,"AF",0,op);
+   printf("lol\n");printf("%s", $$->data);
  }
 | Sk {printf("Sk\n");}
 | AO C AF {} //{ C }
@@ -138,11 +140,10 @@ L_vartnn: Var Argt {$$ = $2;}
 D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{env_global = env_cour;
    env_cour =$4;//$4: env_param // changement env_cour à un env_local
    $$ = creer_bilfon(creer_fon($2,$4,NULL,NULL,0));
-   inbilenv(env_cour,$2,0);}
+   inbilenv(env_cour,$2,0);/*Ajout du nom de la procedure dans les vars locals*/}
 ;
 
 D_entf: Def V PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{env_global = env_cour;
-   //env_local = bilenv_vide();
    env_cour = $4;//$4: env_param // changement env_cour à un env_local
    $$ = creer_bilfon(creer_fon($2,copier_bilenv($4),NULL,NULL,$7));
    inbilenv(env_cour,$2,$7);/*Ajout du nom de la fonction dans les vars locals*/}
@@ -153,7 +154,9 @@ D: D_entp L_vart C { inbilenv($2,$1->debut->ID,$1->debut->type);
   $$ = $1;
   env_cour = env_global;}
 | D_entf L_vart C { inbilenv($2,$1->debut->ID,$1->debut->type);
-  $1->debut->VARLOC = copier_bilenv($2) ; $1->debut->CORPS = $3;
+   $1->debut->VARLOC = copier_bilenv($2) ;
+   $1->debut->CORPS = $3;
+   //printf("%s\n",$3->data);
    $$ = $1;
    env_cour = env_global;}
 ;

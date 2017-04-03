@@ -19,7 +19,7 @@ LFON Lfonalloc()
 
 /* ecrit l'expression n en notation prefixe*/
 void prefix(Noeud *n){
-  //print_tree_ter(n);
+  print_tree_ter(n);
 }
 
 /*****************Noeud ***********************************/
@@ -40,7 +40,7 @@ void print_tree(Noeud* n, FILE* f) {}
 
 void print_tree_ter(Noeud* n) {
   if(n!= NULL){
-    printf("%s ",n->data);
+    printf("%p",&n->data);
     if( n->gauche != NULL)
       print_tree_ter(n->gauche);
     if(n->droit != NULL)
@@ -62,7 +62,7 @@ ENV creer_env(char* etiq, int val, int type){
 }
 
 ENV copier_env(ENV env){
-  return creer_env(env->ID,env->type,env->VAL);
+  return creer_env(env->ID,env->VAL,env->type);
 }
 
 //Regarde d'abord dans l'environnement rho_lc (environnement local)
@@ -195,7 +195,7 @@ char* typetochar(TYPE tp){
 }
 
 void ecrire_fon(LFON bfn){
-  printf("%s : %s \n", bfn->ID, typetochar(bfn->type));
+  printf("%s : %d \n", bfn->ID, bfn->type);
   printf("*****Param*****\n");
   ecrire_env(bfn->PARAM->debut);
   printf("*****Varloc*****\n");
@@ -301,6 +301,6 @@ void ecrire_prog(BILENV argb, BILFON argbf, Noeud* argno){
   printf("/***** Fonctions *****/\n");
   ecrire_bilfon(argbf);
   printf("/***** prog principal *****/\n");
-  //prefix(argno);
+  prefix(argno);
   printf("\n");
 }
