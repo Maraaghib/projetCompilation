@@ -27,7 +27,8 @@
 %token T_bool T_int T_ar  //type
 %token NFon NPro //identificateur
 %token NewAr //new
-%token Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk //operateur
+%token<Noeud> Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk Ind Afc AfInd Jp Jz St Param Call Ret //operateur
+/* Codes C3A: Ind Affectation_constatnte, AfInd Jump Jumpzero Stop Paraètre Call Ret*/
 %token True False Var
 %token<terminal> I V //token terminaux
 %token PO PF AO AF CO CF Virgule DPoints //parenthése accolade crochet deux points
@@ -39,7 +40,7 @@
 %left Se
 %right PO AO CO
 
-%type<Noeud> E Et C L_argsnn L_argtnn Argt
+%type<Noeud> MP E Et C L_argsnn L_argtnn Argt
 %type<codop> TP
 
 %start MP
