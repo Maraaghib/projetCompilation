@@ -90,7 +90,7 @@ BILQUAD concatq(BILQUAD bq1, BILQUAD bq2){
 
 /* traduit entier (= codop) vers chaine (= nom operation)  */
 /* les codes d'op sont definis dans environ.h              */
-char *nomop(int codop){
+/*char *nomop(int codop){
   switch(codop){
     case(Af): return ("Af");
     case(Sk): return ("Sk");
@@ -103,7 +103,7 @@ char *nomop(int codop){
     case(Jz): return ("Jz");
     default: return (NULL);
     };
-}
+}*/
 
 /* affiche le quadruplet (pour generer code); puis saute a la ligne */
 void ecrire_quad(QUAD qd){
