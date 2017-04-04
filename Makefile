@@ -21,9 +21,12 @@ $(CFLEX): src/$(SRCFLEX)
 	flex -o $@ $<
 
 util.o : src/util.c include/util.h environ.o
-	gcc -c -std=c99 $(INCLUDE) -g -o $@ $< 
+	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
 environ.o : src/environ.c include/environ.h $(CBISON)
+	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
+
+tradpp2c3a.o : src/tradpp2c3a.c include/bilquad.h include/util.h include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
 clean:
