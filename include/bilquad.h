@@ -1,6 +1,8 @@
 /* bilquad.h */
 #ifndef BILQUAD_H
 #define BILQUAD_H
+
+#include "util.h"
 /* ----------------------------types--------------------------------------------*/
 /* biliste de quadruplets etiquetes (stocke C3A ou Y86 )*/
 typedef struct cellquad{
