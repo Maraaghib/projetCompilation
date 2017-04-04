@@ -151,8 +151,8 @@ D_entf: Def V PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{env_global =
    env_cour = $4;//$4: env_param // changement env_cour à un env_local
    $$ = creer_bilfon(creer_fon($2,copier_bilenv($4),NULL,NULL,$7));
    liste_fct = concatfn(liste_fct,$$);
-   if($4 == NULL)
-    $4 = bilenv_vide();
+   if(env_cour== NULL)
+    env_cour = bilenv_vide();
    inbilenv(env_cour,$2,$7);/*Ajout du nom de la fonction dans les vars locals*/}
 ;
 
