@@ -8,9 +8,9 @@ typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
 
 /* ----------------------------types--------------------------------------------*/
 
- 
+
 /* Structure representant un arbre binaire.
-remplie en priorité a gauche (c.a.d. si un noeud doit 
+remplie en priorité a gauche (c.a.d. si un noeud doit
 avoir un seul fils alors il sera à gauche) */
 typedef struct Noeud Noeud;
 struct Noeud{
@@ -19,8 +19,8 @@ struct Noeud{
   TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
   Noeud *droit;
   Noeud *gauche;
-
 };
+typedef Noeud* Noeud_P; // Pointeur vers la structure Noeud
 
 /* biliste de var ou param */
 typedef struct bilenv{
