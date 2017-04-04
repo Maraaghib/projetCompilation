@@ -27,8 +27,8 @@ Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype, TOKENTYPE 
   Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
   new_noeud->gauche = fgauche;
   new_noeud->droit = fdroit;
-  new_noeud->data = id;
-  new_noeud->type_var = ntype;
+  new_noeud->ETIQ = id;
+  new_noeud->codop = ntype;
   new_noeud->tokentype = tk;
 
   return new_noeud;
@@ -39,7 +39,7 @@ void print_tree(Noeud* n, FILE* f) {}
 
 void print_tree_ter(Noeud* n) {
   if(n!= NULL){
-    printf("%s ",n->data);
+    printf("%s ",n->ETIQ);
     print_tree_ter(n->gauche);
     print_tree_ter(n->droit);
   }
@@ -148,7 +148,7 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs){
     //tentative d'affectation dans l'environ global
     if(affect(rho_gb->debut,lhs,rhs) != EXIT_SUCCESS)
       fprintf(stderr,"La var %s est inexistante\n", lhs);
-  
+
   return;
 }
 
@@ -225,7 +225,7 @@ void liberer_lfon(LFON fon){
   //liberer_arbre(fon->CORPS);
   free(fon);
 }
-  
+
 /*****************Bilfon*****************/
 
 BILFON bilfon_vide(){
@@ -240,7 +240,7 @@ BILFON creer_bilfon(LFON pfon){
   BILFON new_bf = (BILFON)malloc(sizeof(struct bilfon));
   new_bf->debut = pfon;
   new_bf->fin = pfon;
-  
+
   return new_bf;
 }
 

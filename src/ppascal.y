@@ -12,14 +12,14 @@
   //par defaut env_cur correspond a env_global
 
   int i =0;
-  
+
   %}
 
 %error-verbose
 
 %union{
   struct Noeud * Noeud;
-  int type_var;
+  int codop;
   char* terminal;
   //enum type etype;
  }
@@ -40,7 +40,7 @@
 %right PO AO CO
 
 %type<Noeud> E Et C L_argsnn L_argtnn Argt
-%type<type_var> TP
+%type<codop> TP
 
 %start MP
 %%

@@ -60,9 +60,9 @@ int init_pile(TAS *tas, ADR *adr, TAL *tal){
  	if (!n) return 0;
  	switch(n->tokentype){
  		case I:
-			return atoi(n->data);
+			return atoi(n->ETIQ);
 		case V:
-			{ pos=rech(n->data,e->debut);
+			{ pos=rech(n->ETIQ,e->debut);
 			return (pos->VAL);
 			}
 		case If:
@@ -84,8 +84,8 @@ int init_pile(TAS *tas, ADR *adr, TAL *tal){
 				traitement(e,n);
 				}
 		case Af:
-			initenv(e,n->gauche->data);
- 			return affect(*e, n->gauche->data, traitement(e,n->droit));
+			initenv(e,n->gauche->ETIQ);
+ 			return affect(*e, n->gauche->ETIQ, traitement(e,n->droit));
  		case Se:
  			traitement(e,n->gauche);
  			return traitement(e,n->droit);
@@ -110,14 +110,14 @@ int init_pile(TAS *tas, ADR *adr, TAL *tal){
 		case NewAr:	
 			return 0;
 		case T_int:
-			return atoi(n->data);
+			return atoi(n->ETIQ);
 		case T_bool:
-				return atoi(n->data);
+				return atoi(n->ETIQ);
 		case T_array:
 					return 0;
 			
 		case Def:
-			creer_bilfon(creer_fon(n->data,
+			creer_bilfon(creer_fon(n->ETIQ,
 			;
 		
      }
