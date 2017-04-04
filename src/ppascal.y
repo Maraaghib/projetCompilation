@@ -3,12 +3,17 @@
   #include <stdlib.h>
   #include "util.h"
   #include "environ.h"
+  #include "bilquad.h"
+
   int yywrap();
   int yylex();
   void yyerror();
+  char *strdup(const char *s);
   extern int yylineno;
 
   BILENV env_cour, env_global;
+  NOE syntree;
+  ENV envrnt;
   //par defaut env_cur correspond a env_global
 
   int i =0;
@@ -27,7 +32,7 @@
 %token T_bool T_int T_ar  //type
 %token NFon NPro //identificateur
 %token NewAr //new
-%token<Noeud> Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk Ind Afc AfInd Jp Jz St Param Call Ret //operateur
+%token<Noeud> Mp Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk Ind Afc AfInd Jp Jz St Param Call Ret //operateur
 /* Codes C3A: Ind Affectation_constatnte, AfInd Jump Jumpzero Stop Paraètre Call Ret*/
 %token True False Var
 %token<terminal> I V //token terminaux
@@ -46,6 +51,12 @@
 %start MP
 %%
 MP: L_vart LD C {
+                  $$ = Nalloc();
+                  $$->gauche = $3;
+                  $$->droit = NULL;
+                  $$->ETIQ = strdup("Mp");
+                  $$->codop = Mp; // Warning ! Mp and MP are different !
+                  syntree = $$;
                   ecrire_bilenv(env_cour);
                   print_tree_ter($3); printf("\n");
                 }
@@ -186,6 +197,12 @@ int yywrap(){}
 int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
+  /* Compiler Pseudo-Pascal to C3A */
+  BILQUAD bilq = pp2quad(syntree);
+  printf("\n\n");
+  printf("Le code C3A du programme Pseudo-Pascal: \n");
+  ecrire_sep_bilquad(bilq);
+  /*********************************/
   yyparse();
   return EXIT_SUCCESS;
 }
