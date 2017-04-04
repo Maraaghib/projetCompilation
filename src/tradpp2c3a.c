@@ -7,7 +7,7 @@
 #include "bilquad.h"
 #include "util.h"
 #include "environ.h"
-#include "iimp.tab.h"
+#include "../ppascalbison.h"
 /* iimp.tab.h APRES arbre,h, sinon le type NOE est inconnu de gcc    */
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
@@ -78,11 +78,21 @@ char *nomop(int codop) {
         case(Pl): return("Pl");
         case(Mo): return("Mo");
         case(Mu): return("Mu");
+        case(And): return("And");
+        case(Or): return("Or");
+        case(Not): return("Not");
+        case(Lt): return("Lt");
+        case(Eq): return("Eq");
+        case(Ind): return("Ind");
         case(Afc): return("Afc");
+        case(AfInd): return("AfInd");
         case(St): return("St");
         case(Jp): return("Jp");
         case(Jz): return("Jz");
-        case(halt): return("halt");
+        case(Param): return("Param");
+        case(Call): return("Call");
+        case(Ret): return("Ret");
+        /*case(halt): return("halt");
         case(nop): return("nop");
         case(rrmovl): return("rrmovl");
         case(irmovl): return("irmovl");
@@ -98,7 +108,7 @@ char *nomop(int codop) {
         case(call): return("call");
         case(ret): return("ret");
         case(pushl): return("pushl");
-        case(popl): return("popl");
+        case(popl): return("popl");*/
         case(0): return("");                   /* code 0: directive assembleur y86 */
         default: return(NULL);
     };
@@ -188,7 +198,7 @@ BILQUAD pp2quad(NOE ec) {
             }
             nres = gensym("VA");
             /* on insere le nom de var dans l'environnement */
-            initenv(&envrnt, nres);
+            initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
             /* le quadruplet: ETnum, Afc, chaineconst,-, VAnum */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             bilres = creer_bilquad(nquad);
@@ -205,7 +215,7 @@ BILQUAD pp2quad(NOE ec) {
             narg2 = NULL;
             nres = gensym("CT");
             /* on insere le nom de const dans l' environnement */
-            initenv(&envrnt, nres);
+            initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
             /* le quadruplet: ETnum, Afc, chaineconst,-, CTnum */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             bilres = creer_bilquad(nquad);
