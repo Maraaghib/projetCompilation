@@ -4,7 +4,7 @@
 
 #include "environ.h"
 
-typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
+typedef enum token {constante,variable,op,funct,proc,call} TOKENTYPE;
 
 /* ----------------------------types--------------------------------------------*/
 
@@ -33,7 +33,7 @@ typedef struct cellfon{
   BILENV PARAM;    /* pametres formels types   */
   BILENV VARLOC;   /* variables locales typees */
   Noeud* CORPS;
-  TYPE type;
+  int type;
   struct cellfon *SUIV;} *LFON;
 
 /* biliste de fonctions */

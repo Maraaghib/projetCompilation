@@ -40,7 +40,7 @@ void print_tree(Noeud* n, FILE* f) {}
 
 void print_tree_ter(Noeud* n) {
   if(n!= NULL){
-    printf("%p",&n->data);
+    printf("%s ",n->data);
     if( n->gauche != NULL)
       print_tree_ter(n->gauche);
     if(n->droit != NULL)
@@ -108,6 +108,8 @@ BILENV creer_bilenv(ENV var){
 }
 
 BILENV copier_bilenv(BILENV b){
+  if(b == NULL)
+    return NULL;
   BILENV copie_b = bilenv_vide();
   ENV curseur, copie_curseur;
   curseur = b->debut;
