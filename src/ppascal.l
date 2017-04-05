@@ -43,7 +43,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 "and" {return And;}
 "or" {return Or;}
 "not" { return Not;}
-"<=" {return Lt;}
+"<" {return Lt;}
 "=" {return Eq;}
 
 

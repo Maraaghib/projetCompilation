@@ -9,5 +9,9 @@ var n : integer
        then foo := X * foo (X - 1)
        else foo := 0
 
+defun foo2() : integer
+var n :integer
+	foo2 := 3
+
 X1 := 5;
 X2 := foo(X1)
