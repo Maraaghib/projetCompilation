@@ -168,9 +168,13 @@ BILQUAD pp2quad(NOE ec) {
     char *netiq, *netiqf, *nres;        /* nouveaux ingredients */
     char *narg1 = NULL;
     char *narg2 = NULL;
-    QUAD nquad;                         /* nouveau quadruplet   */
+    QUAD nquad;      /* nouveau quadruplet   */
     assert(ec != NULL);
+    // printf("\n*************** | DANS PP2QUAD() | ***************\n\n");
+    // printf("Noeud: %p\n", ec);
+    // printf("Opérateur: %s\n", nomop(ec->codop));
     switch(ec->codop) {
+      // printf("Dans switch !\n");
         /* CAS: ec est une EXPRESSION */
         case Pl: case Mo: case Mu:                   /* operation binaire */
             /* les ingredients */
@@ -211,17 +215,20 @@ BILQUAD pp2quad(NOE ec) {
             netiq = gensym("ET");
             newop = Afc;
             narg1 = Idalloc();
+            // printf("case I: ec->ETIQ = %s\n", ec->ETIQ);
             sprintf(narg1,"%s", ec->ETIQ);
             narg2 = NULL;
             nres = gensym("CT");
             /* on insere le nom de const dans l' environnement */
-            initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
+            // initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
             /* le quadruplet: ETnum, Afc, chaineconst,-, CTnum */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             bilres = creer_bilquad(nquad);
+            // printf("J'ai fini avec case I\n");
             break;
         case V:
             /* le quadruplet: skip, resultat dans chainevar */
+            // printf("Je suis entré dans case V\n");
             netiq = gensym("ET");
             newop = Sk;
             narg1 = NULL;
@@ -251,6 +258,7 @@ BILQUAD pp2quad(NOE ec) {
             /* assert(ec->gauche->codop == V); */
             /* narg1 =  chaine en lhs */
             narg1 = ec->gauche->ETIQ;
+            // printf("La partie gauche de Af est: %s\n", narg1);
             /* narg2 =  adresse res du code du rhs */
             bilq2 = pp2quad(ec->droit);
             narg2 = Idalloc();
@@ -273,6 +281,7 @@ BILQUAD pp2quad(NOE ec) {
             break;
         case Se:
             bilq1 = pp2quad(ec->gauche);
+            // printf("I'm here \n");
             bilq2 = pp2quad(ec->droit);
             bilres = concatq(bilq1, bilq2);
             break;
