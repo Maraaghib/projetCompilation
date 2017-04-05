@@ -26,7 +26,7 @@ ENV Envalloc()
 
 /* initialise l'environnement *prho par  var=0    */
 /* la chaine var est copiee dans l' environnement */
-int initenv(ENV *prho,char *var, int type)
+int initenv(ENV *prho,char *var, type* typeno)
 {ENV pos, newcell;
   pos=rech(var,*prho);/* adresse de la cellule contenant var */
   if (pos == NULL)
@@ -34,7 +34,7 @@ int initenv(ENV *prho,char *var, int type)
     { newcell=Envalloc();
       strcpy(newcell->ID,var);
       ENV curseur = *prho;
-      newcell->type = type;
+      newcell->typeno = typeno;
       while (curseur->SUIV != NULL)
 	curseur = curseur->SUIV;
       curseur->SUIV = newcell;

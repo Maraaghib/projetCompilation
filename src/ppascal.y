@@ -12,7 +12,7 @@
   extern int yylineno;
 
   BILENV env_cour, env_global;
-  NOE syntree;
+  Noeud* syntree;
   ENV envrnt;
   //par defaut env_cur correspond a env_global
 
@@ -197,12 +197,12 @@ int yywrap(){}
 int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
+  yyparse();
   /* Compiler Pseudo-Pascal to C3A */
   BILQUAD bilq = pp2quad(syntree);
   printf("\n\n");
   printf("Le code C3A du programme Pseudo-Pascal: \n");
   ecrire_sep_bilquad(bilq);
-  /*********************************/
-  yyparse();
+  
   return EXIT_SUCCESS;
 }

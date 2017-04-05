@@ -7,12 +7,6 @@
 
 /* ----------------------------types--------------------------------------------*/
 
-/* type: tableau */
-typedef struct {
-  int DIM;   /* dimension ; vaut 0 ssi type de base                           */
-  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */
-}type;
-
 /* Structure representant un arbre binaire.
 remplie en priorité a gauche (c.a.d. si un noeud doit
 avoir un seul fils alors il sera à gauche) */
@@ -20,11 +14,11 @@ typedef struct Noeud Noeud;
 struct Noeud{
   char *ETIQ;
   int codop; // correspond au valeur de l'enum contenu dans ppasclabison.h
-  type typno; /*[0,T_com](si commande) ou [k,(T_int,T_boo)] (si expression)   */
+  type* typeno; /*[0,T_com](si commande) ou [k,(T_int,T_boo)] (si expression) */
   Noeud *droit;
   Noeud *gauche;
 };
-typedef Noeud* NOE; // Pointeur vers la structure Noeud
+//typedef Noeud* NOE; // Pointeur vers la structure Noeud
 
 /* biliste de var ou param */
 typedef struct bilenv{
@@ -37,7 +31,7 @@ typedef struct cellfon{
   BILENV PARAM;    /* pametres formels types   */
   BILENV VARLOC;   /* variables locales typees */
   Noeud* CORPS;
-  TYPE type;
+  type* typeno;
   struct cellfon *SUIV;} *LFON;
 
 /* biliste de fonctions */
@@ -47,7 +41,7 @@ typedef struct bilfon{
 
 /*******************ARBRES****************************************************/
 /* Initialise un noeud , avec pour ETIQ le char *. */
-Noeud *create_noeud(Noeud *, Noeud *, char *, int ,TOKENTYPE); // A RECUP
+Noeud *create_noeud(Noeud *,Noeud *,char *,int,type*); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
 void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
@@ -57,7 +51,7 @@ void print_tree_ter(Noeud *);  // A RECUP
 /*------------------FONCTIONS -----------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 extern int yylex();          /* fonction generee par flex                    */ //OK (fait par flex)
-extern void yyerror();        /* fonction generee par flex/bison              */ //A faire
+extern void yyerror();        /* fonction generee par flex/bison              */ //OK
 /*---------------------allocation memoire------------------------------------*/
 extern Noeud *Nalloc();         /* retourne un Noeud                              */ //OK
 extern LFON  Lfonalloc();    /* retourne un LFON                             */ //OK
@@ -66,19 +60,19 @@ extern type *talloc();       /* retourne un pointeur sur type *                 
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
 extern int est_feuille(NOE n);/* 1 si est une feuille, 0 sinon                   */ //à coder
 /*---------------------environnements----------------------------------------*/
-extern int  type_eq(type t1, type t2);/* 1 si t1 ==t2 , 0 sinon                  */
-extern void type_copy(type *tcop, type torig);/* copie torig vers tcop           */
-extern void type_affect(ENV rho, type tvar);/* affecte le type  de   *rho      */
-extern type creer_type(int dm, int tf);/* retourne le type                       */
-extern type type_res_op(int op);/* retourne le type resultat de op               */
-extern void ecrire_type(type tp);      /* ecrit le type  
-extern ENV creer_env(char *etiq, int val, int type);/*pointe vers cette var            */ //DONE \/ \/
+extern int  type_eq(type* t1, type* t2);/* 1 si t1 ==t2 , 0 sinon                  */
+extern void type_copy(type *tcop, type* torig);/* copie torig vers tcop           */
+extern void type_affect(ENV rho, type* tvar);/* affecte le type  de   *rho      */
+extern type* creer_type(int dm, int tf);/* retourne le type                       */
+extern type* type_res_op(int op);/* retourne le type resultat de op               */
+extern void ecrire_type(type* tp);      /* ecrit le type  */
+extern ENV creer_env(char *etiq, int val, type* type);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
 extern ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc);
 /*---------------------bilistes-de-var---------------------------------------*/
-extern void inbilenv(BILENV prho,char *var, int t);             /* initialise var  */
+extern void inbilenv(BILENV prho,char *var, type* typeno);             /* initialise var  */
 extern BILENV bilenv_vide() ;                  /* retourne une biliste vide  */
 extern BILENV creer_bilenv(ENV var);   /* retourne une biliste a un element  */
 extern BILENV copier_bilenv(BILENV b);   /*pointe vers copie                 */
@@ -88,7 +82,7 @@ extern void ecrire_bilenv(BILENV b);   /* affiche la biliste de quadruplets*/
 extern void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs);
 extern void liberer_bilenv(BILENV be); /*libére tout l'environnement */
 /*---------------------fonctions --------------------------------------------*/
-extern LFON creer_fon(char *nfon, BILENV lparam,BILENV lvars,Noeud* com,TYPE tp);
+extern LFON creer_fon(char *nfon, BILENV lparam,BILENV lvars,Noeud* com,type* tp);
 /* pointe vers cette fonction */
 extern LFON copier_fon(LFON lfn);    /* pointe vers une copie                */
 extern void ecrire_fon(LFON bfn);

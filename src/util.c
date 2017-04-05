@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../ppascalbison.h"
 #include "environ.h"
 #include "util.h"
 
@@ -22,14 +23,22 @@ void prefix(Noeud *n){
   print_tree_ter(n);
 }
 
+int est_feuille(Noeud* n){
+  return (n->droit == NULL && n->gauche == NULL);
+}
+
+type* talloc(){
+  return (type*)malloc(sizeof(type));
+}
+
 /*****************Noeud ***********************************/
-Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype, TOKENTYPE tk){
+Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype,type* tk){
   Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
   new_noeud->gauche = fgauche;
   new_noeud->droit = fdroit;
   new_noeud->ETIQ = id;
   new_noeud->codop = ntype;
-  new_noeud->tokentype = tk;
+  new_noeud->typeno = tk;
 
   return new_noeud;
 
@@ -49,11 +58,33 @@ void print_tree_ter(Noeud* n) {
 }
 
 /*****************Biliste d'environnement *****************/
-ENV creer_env(char* etiq, int val, int type){
+
+int type_eq(type* t1, type* t2){
+  if(t1->DIM == t2->DIM)
+    if(t1->TYPEF == t2->TYPEF)
+      return 1;
+  return 0;
+}
+
+void type_copy(type* tcop, type* torig){
+  tcop = creer_type(torig->DIM,torig->TYPEF);
+}
+
+void type_affect(ENV rho, type* tvar){
+  rho->typeno = tvar;
+}
+
+type* type_res_op(int op) {}
+
+void ecrire_type(type* tp){
+  printf("dim: %d type: %d", tp->DIM, tp->TYPEF);
+}
+
+ENV creer_env(char* etiq, int val, type* typeno){
   ENV e = Envalloc();
   strcpy(e->ID,etiq);
   e->VAL = val;
-  e->type = type;
+  e->typeno = typeno;
   e->SUIV = NULL;
   return e;
 }
@@ -62,7 +93,7 @@ ENV copier_env(ENV env){
   ENV copie_env = Envalloc();
 
   strcpy(copie_env->ID,env->ID);
-  copie_env->type = env->type;
+  copie_env->typeno = env->typeno;
   copie_env->VAL = env->VAL;
 
   return copie_env;
@@ -82,7 +113,7 @@ ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
 
 /*****************Biliste de Var *****************/
 
-void inbilenv(BILENV phro, char * var, int t){
+void inbilenv(BILENV phro, char * var, type* t){
   ENV new_e =creer_env(var,0,t);
   if(phro->debut == NULL){
     phro->debut = new_e;
@@ -162,13 +193,13 @@ void liberer_bilenv(BILENV be){
 }
 
 /*****************fonctions*****************/
-LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, Noeud* com, TYPE tp) {
+LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, Noeud* com, type* tp) {
   LFON new_f = Lfonalloc();
   strcpy(new_f->ID,nfon);
   new_f->PARAM = lparam;
   new_f->VARLOC = lvar;
   new_f->CORPS = com;
-  new_f->type = tp;
+  new_f->typeno = tp;
   new_f->SUIV = NULL;
 }
 
@@ -181,14 +212,12 @@ LFON copier_fon(LFON lfn){
   new_f->SUIV = NULL;
 }
 
-char* typetochar(TYPE tp){
+char* typetochar(int tp){
   switch (tp){
-  case integer :
+  case T_int :
     return "integer";
-  case boolean :
+  case T_bool :
     return "boolean";
-  case array :
-    return "array";
   default:
    break;
   }
@@ -196,7 +225,8 @@ char* typetochar(TYPE tp){
 }
 
 void ecrire_fon(LFON bfn){
-  printf("%s : %s \n", bfn->ID, typetochar(bfn->type));
+  printf("%s : ", bfn->ID);
+  ecrire_type(bfn->typeno);
   printf("*****Param*****\n");
   ecrire_env(bfn->PARAM->debut);
   printf("*****Varloc*****\n");
