@@ -1,13 +1,17 @@
 /* util.h */
 #ifndef UTIL_H
 #define UTIL_H
-
 #include "environ.h"
 
-typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;
+/*plus besoin tout type est tableau de dim 0 type basique()typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;*/
 
 /* ----------------------------types--------------------------------------------*/
 
+/* type: tableau */
+typedef struct {
+  int DIM;   /* dimension ; vaut 0 ssi type de base                           */
+  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */
+}type;
 
 /* Structure representant un arbre binaire.
 remplie en priorité a gauche (c.a.d. si un noeud doit
@@ -16,7 +20,7 @@ typedef struct Noeud Noeud;
 struct Noeud{
   char *ETIQ;
   int codop; // correspond au valeur de l'enum contenu dans ppasclabison.h
-  TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
+  type typno; /*[0,T_com](si commande) ou [k,(T_int,T_boo)] (si expression)   */
   Noeud *droit;
   Noeud *gauche;
 };
@@ -57,9 +61,17 @@ extern void yyerror();        /* fonction generee par flex/bison              */
 /*---------------------allocation memoire------------------------------------*/
 extern Noeud *Nalloc();         /* retourne un Noeud                              */ //OK
 extern LFON  Lfonalloc();    /* retourne un LFON                             */ //OK
+extern type *talloc();       /* retourne un pointeur sur type *                  */ //à coder
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
+extern int est_feuille(NOE n);/* 1 si est une feuille, 0 sinon                   */ //à coder
 /*---------------------environnements----------------------------------------*/
+extern int  type_eq(type t1, type t2);/* 1 si t1 ==t2 , 0 sinon                  */
+extern void type_copy(type *tcop, type torig);/* copie torig vers tcop           */
+extern void type_affect(ENV rho, type tvar);/* affecte le type  de   *rho      */
+extern type creer_type(int dm, int tf);/* retourne le type                       */
+extern type type_res_op(int op);/* retourne le type resultat de op               */
+extern void ecrire_type(type tp);      /* ecrit le type  
 extern ENV creer_env(char *etiq, int val, int type);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK

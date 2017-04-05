@@ -1,28 +1,30 @@
-#ifndef __INTERP__H__
-#define __INTERP__H__
+/* interp.h */
+#ifndef INTERP_H
+#define INTERP_H
 
-typedef struct TAS{
-  int taille;
-  struct TAS* suiv;
-} *TAS;
+/*----------------------semantique-----------------------------------------------*/
+/* initialisation  memoire                                                       */
+void init_memoire();/* initialise le tas: TAS, ADR, TAL                          */
+/* decrit la memoire: ADR, TAL, TAS */
+void ecrire_memoire(int maxadr, int maxtal, int maxtas);
+/* semantique op a grands pas des expressions */  
+int traitement(ENV *e,Noeud *n);
+/*---------------------VARIABLES globales ---------------------------------------*/
+extern NOE syntree;          /* arbre syntaxique                      (y.tab.c)  */
+extern int TAS [TAILLEMEM];  /* le tas; (NIL=0); "vraies" adresses >=1(y.tab.c)  */
+extern int ADR[TAILLEADR];   /* ADR[i]=adresse dans le tas du tab i              */
+extern int TAL[TAILLEADR];   /* TAL[i]=taille du tab i                           */
+extern int ptasl;            /* premiere place libre dans TAS[]                  */
+extern int padrl;            /* premiere place libre dans ADR[]                  */
 
-typedef struct ADR{
-  int adresse;
-  struct ADR* suiv;
-} *ADR;
 
-typedef struct TAL{
-  int taille;
-  struct TAL* suiv;
-} *TAL;
+/*------------------FONCTIONS ---------------------------------------------------*/
+/*------------------types--------------------------------------------------------*/
 
-TAS TAS_alloc();
-ADR ADR_alloc();
-TAL TAL_alloc();
+/* envoie message s d'erreur de type en ligne ligne                              */
+extern void typ_error(char *s,int ligne);
+/*renvoie le type de e*/
+extern type calcul_type(BILENVTY rho_gb, NOE e,int ligne);
 
-int init_tas(TAS * tas);
-int init_adr(ADR *adr);
-int init_tal(TAL *tal);
-int init_pile(TAS *tas, ADR * adr, TAl *tal);
 
 #endif
