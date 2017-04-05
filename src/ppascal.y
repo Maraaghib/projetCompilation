@@ -12,7 +12,7 @@
   extern int yylineno;
 
   BILENV env_cour, env_global;
-  NOE syntree;
+  NOE syntree;  /* commande  globale */
   ENV envrnt;
   //par defaut env_cur correspond a env_global
 
@@ -51,41 +51,37 @@
 %start MP
 %%
 MP: L_vart LD C {
-                  $$ = Nalloc();
-                  $$->gauche = $3;
-                  $$->droit = NULL;
-                  $$->ETIQ = strdup("Mp");
-                  $$->codop = Mp; // Warning ! Mp and MP are different !
-                  syntree = $$;
+                  syntree = create_noeud($3, NULL, "Mp", Mp, op);
                   ecrire_bilenv(env_cour);
                   print_tree_ter($3); printf("\n");
+                  YYACCEPT;
                 }
 
 E : E Pl E      {
-                  $$ = create_noeud($1,$3,"Pl",0,op);
+                  $$ = create_noeud($1,$3,"Pl",Pl,op);
                 }
   | E Mo E      {
-                  $$ = create_noeud($1,$3,"Mo",0,op);
+                  $$ = create_noeud($1,$3,"Mo",Mo,op);
                 }
   | E Mu E      {
-                  $$ = create_noeud($1,$3,"Mu",0,op);
+                  $$ = create_noeud($1,$3,"Mu",Mu,op);
                 }
   | E Or E      {
-                  $$ = create_noeud($1,$3,"Or",0,op);
+                  $$ = create_noeud($1,$3,"Or",Or,op);
                 }
   | E Lt E      {
-                  $$ = create_noeud($1,$3,"Lt",0,op);
+                  $$ = create_noeud($1,$3,"Lt",Lt,op);
                 }
   | E Eq E      {
-                  $$ = create_noeud($1,$3,"Eq",0,op);
+                  $$ = create_noeud($1,$3,"Eq",Eq,op);
                 }
   | E And E     {
-                  $$ = create_noeud($1,$3,"And",0,op);
+                  $$ = create_noeud($1,$3,"And",And,op);
                 }
   | Not E       {}
   | PO E PF     {}
   | I           {
-                  $$ = create_noeud(NULL,NULL,$1,T_int,constante); printf("%s\n",$1);
+                  $$ = create_noeud(NULL,NULL,$1,I,constante); printf("%s\n",$1); // Hamza: J'ai remplacé le 4ème argument par I. Sinon, le compilateur ne marche pas
                 }
   | V           {
                   ENV pos = rech2($1,env_cour->debut,env_global->debut);
@@ -93,11 +89,12 @@ E : E Pl E      {
                     yyerror("Variable non déclarée");
                     exit(EXIT_FAILURE);
                   }
-                  $$ = create_noeud(NULL,NULL,pos->ID,pos->type,variable);
+                  $$ = create_noeud(NULL,NULL,pos->ID,V,variable); // Hamza: J'ai remplacé le 4ème argument par V. Sinon, le compilateur ne marche pas
                 }
   | True        {
                   $$ = create_noeud(NULL,NULL,"true",True,constante);
-                }
+                }/*printf("\n L'arbre de syntaxe astraite: \n");
+  prefix(syntree);*/
   | False       {
                   $$ = create_noeud(NULL,NULL,"false",False,constante);
                 }
@@ -111,10 +108,10 @@ Et: V CO E CF /* V [ E ] */{}
   ;
 
 C : C Se C    {
-                $$ = create_noeud($1,$3,"Se",0,op);
+                $$ = create_noeud($1,$3,"Se",Se,op);
               }
   | Et Af E   {
-                $$ = create_noeud($1,$3,"Af",0,op);
+                $$ = create_noeud($1,$3,"Af",Af,op);
               }
   | V Af E    {
                 ENV pos = rech2($1,env_cour->debut,env_global->debut);
@@ -122,14 +119,14 @@ C : C Se C    {
                   yyerror("Variable non déclaré");
                   exit(EXIT_FAILURE);
                 }
-                $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->type,variable),$3,"AF",0,op);
+                $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->type,variable),$3,"AF",Af,op);
               }
   | Sk        {
                 printf("Sk\n");
               }
   | AO C AF   {} //{ C }
   | If E Th C El C  {
-                      create_noeud($2,create_noeud($4,create_noeud($6,NULL,"El",0,op),"Th",0,op),"If",0,op);
+                      create_noeud($2,create_noeud($4,create_noeud($6,NULL,"El",El,op),"Th",Th,op),"If",If,op);
                     }
   | Wh E Do C {}
   | V PO L_args PF /*V ( L_args )*/{}
@@ -198,11 +195,17 @@ int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
   /* Compiler Pseudo-Pascal to C3A */
-  BILQUAD bilq = pp2quad(syntree);
-  printf("\n\n");
-  printf("Le code C3A du programme Pseudo-Pascal: \n");
-  ecrire_sep_bilquad(bilq);
-  /*********************************/
+  /*printf("\n L'arbre de syntaxe astraite: \n");
+  prefix(syntree);*/
   yyparse();
+  /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
+  /*printf("Avant pp2quad\n");*/
+  BILQUAD bilq = pp2quad(syntree);
+  /*printf("Après pp2quad\n");*/
+  printf("\n\n");
+  printf("\n******* Le code C3A du programme Pseudo-Pascal: *******\n\n");
+  ecrire_sep_bilquad(bilq);
+  printf("\n");
+  /*********************************/
   return EXIT_SUCCESS;
 }
