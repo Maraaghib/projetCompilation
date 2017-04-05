@@ -161,7 +161,7 @@ void ecrire_sep_bilquad(BILQUAD bq) {
 
 /* traduit une (expression ou commande) en biliste de quadruplets */
 /* met a jour l'environnement (var globale)                      */
-BILQUAD pp2quad(NOE ec) {
+BILQUAD pp2quad(Noeud* ec) {
     extern ENV envrnt;
     BILQUAD bilq1, bilq2, bilexp, bilres; /* trad de: fg, fd, expression, resultat */
     int newop;

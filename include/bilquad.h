@@ -31,7 +31,7 @@ extern BILQUAD normal(BILQUAD bq);/* retourne la f.n. de bq: skip a la fin      
 extern void ecrire_sep_bilquad(BILQUAD bq);/* affiche bq , avec separateurs ":"  */
 extern void ecrire_quad(QUAD qd); /* affiche le quadruplet                       */
 extern void ecrire_bilquad(BILQUAD bq); /* affiche la biliste de quadruplets     */
-extern BILQUAD pp2quad(NOE ec); /* traduit une commande en quadriplet */
+extern BILQUAD pp2quad(Noeud* ec); /* traduit une commande en quadriplet */
 
 
 #endif

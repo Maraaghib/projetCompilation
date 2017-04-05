@@ -3,7 +3,9 @@
 #define UTIL_H
 #include "environ.h"
 
+
 /*plus besoin tout type est tableau de dim 0 type basique()typedef enum token {constante,variable,op,funct,proc} TOKENTYPE;*/
+
 
 /* ----------------------------types--------------------------------------------*/
 
@@ -58,7 +60,7 @@ extern LFON  Lfonalloc();    /* retourne un LFON                             */ 
 extern type *talloc();       /* retourne un pointeur sur type *                  */ //à coder
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(Noeud* n);   /* ecrit l'expression n en notation prefixe     */ //OK ?
-extern int est_feuille(NOE n);/* 1 si est une feuille, 0 sinon                   */ //à coder
+extern int est_feuille(Noeud* n);/* 1 si est une feuille, 0 sinon                   */ //à coder
 /*---------------------environnements----------------------------------------*/
 extern int  type_eq(type* t1, type* t2);/* 1 si t1 ==t2 , 0 sinon                  */
 extern void type_copy(type *tcop, type* torig);/* copie torig vers tcop           */
