@@ -8,19 +8,19 @@ typedef enum token {constante,variable,op,funct,proc,call} TOKENTYPE;
 
 /* ----------------------------types--------------------------------------------*/
 
- 
+
 /* Structure representant un arbre binaire.
-remplie en priorité a gauche (c.a.d. si un noeud doit 
+remplie en priorité a gauche (c.a.d. si un noeud doit
 avoir un seul fils alors il sera à gauche) */
 typedef struct Noeud Noeud;
 struct Noeud{
-  char *data;
-  int type_var; // correspond au valeur de l'enum contenu dans ppasclabison.h
+  char *ETIQ;
+  int codop; // correspond au valeur de l'enum contenu dans ppasclabison.h
   TOKENTYPE tokentype; //enum type of token const|variable|op|funct|proc
   Noeud *droit;
   Noeud *gauche;
-
 };
+typedef Noeud* NOE; // Pointeur vers la structure Noeud
 
 /* biliste de var ou param */
 typedef struct bilenv{
@@ -42,7 +42,7 @@ typedef struct bilfon{
   LFON fin;}*BILFON;
 
 /*******************ARBRES****************************************************/
-/* Initialise un noeud , avec pour data le char *. */
+/* Initialise un noeud , avec pour ETIQ le char *. */
 Noeud *create_noeud(Noeud *, Noeud *, char *, int ,TOKENTYPE); // A RECUP
 /* Affiche l'arbre à partir du noeud dans un fichier. */
 void print_tree(Noeud *, FILE *);  // A RECUP

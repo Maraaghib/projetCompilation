@@ -17,13 +17,15 @@
   BILENV param_cour;
   int type_fct; // vaut 0 pour les procedures 
   
+  int i =0;
+
   %}
 
 %error-verbose
 
 %union{
   struct Noeud * Noeud;
-  int type_var;
+  int codop;
   char* terminal;
   struct bilenv* b_env;
   struct bilfon* bf;
@@ -47,7 +49,8 @@
 %type<Noeud> E Et C L_argsnn L_args
 %type<b_env>  L_vartnn L_vart Argt L_argt L_argtnn
 %type<bf> LD D D_entf D_entp
-%type<type_var> TP
+%type<codop> TP
+
 
 %start MP
 %%
