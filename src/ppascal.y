@@ -201,12 +201,10 @@ int yywrap(){}
 int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
-  //yyparse();
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/
   yyparse();
-      printf("\n************* JE SUIS LA ! **************\n");
   /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
   /*printf("Avant pp2quad\n");*/
   BILQUAD bilq = pp2quad(syntree);
