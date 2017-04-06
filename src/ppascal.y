@@ -37,7 +37,7 @@
   struct bilfon* bf;
  }
 
-%token T_bool T_int T_ar  //type
+%token T_bool T_int T_ar T_err  //type
 %token NFon NPro //identificateur
 %token NewAr //new
 %token<Noeud> Mp Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk Ind Afc AfInd Jp Jz St Param Call Ret //operateur
