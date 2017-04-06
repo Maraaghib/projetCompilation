@@ -176,7 +176,7 @@ BILQUAD pp2quad(Noeud* ec) {
     switch(ec->codop) {
       // printf("Dans switch !\n");
         /* CAS: ec est une EXPRESSION */
-        case Pl: case Mo: case Mu:                   /* operation binaire */
+        case Pl: case Mo: case Mu: case And: case Or:                   /* operation binaire */
             /* les ingredients */
             netiq = gensym("ET");
             newop = ec->codop;
@@ -250,8 +250,8 @@ BILQUAD pp2quad(Noeud* ec) {
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             bilq2 = creer_bilquad(nquad);
             bilres = concatq(bilq1, bilq2);
-        break;
-            case Af:
+            break;
+        case Af:
             /* les ingredients */
             netiq = gensym("ET");
             newop = Af;
