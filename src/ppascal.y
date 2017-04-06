@@ -1,6 +1,7 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
+  #include <stdbool.h>
   #include <unistd.h>
   #include "util.h"
   #include "environ.h"
@@ -78,7 +79,7 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,Pl));}
 | E Lt E {$$ = create_noeud($1,$3,"Lt",Lt,creer_type(0,Lt));}
 | E Eq E {$$ = create_noeud($1,$3,"Eq",Eq,creer_type(0,Eq));}
 | E And E {$$ = create_noeud($1,$3,"And",And,creer_type(0,And));}
-| Not E {}
+| Not E  {$$ = create_noeud($2,NULL,"Not",Not,creer_type(0,Not));}
 | PO E PF {}
 | I {$$ = create_noeud(NULL,NULL,$1,I,creer_type(0,T_int));} // Hamza: J'ai remplacé le 4ème argument (T_int) par I. Sinon, le compilateur ne marche pas
 | V {ENV pos = rech2($1,env_cour->debut,env_global->debut);
@@ -200,11 +201,12 @@ int yywrap(){}
 int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
-  yyparse();
+  //yyparse();
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/
   yyparse();
+      printf("\n************* JE SUIS LA ! **************\n");
   /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
   /*printf("Avant pp2quad\n");*/
   BILQUAD bilq = pp2quad(syntree);
