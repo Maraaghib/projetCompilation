@@ -176,7 +176,7 @@ BILQUAD pp2quad(Noeud* ec) {
     switch(ec->codop) {
       // printf("Dans switch !\n");
         /* CAS: ec est une EXPRESSION */
-        case Pl: case Mo: case Mu: case And: case Or:                   /* operation binaire */
+        case Pl: case Mo: case Mu: case And: case Or:                 /* operation binaire */
             /* les ingredients */
             netiq = gensym("ET");
             newop = ec->codop;
@@ -202,7 +202,7 @@ BILQUAD pp2quad(Noeud* ec) {
             }
             nres = gensym("VA");
             /* on insere le nom de var dans l'environnement */
-            initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
+            // initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
             /* le quadruplet: ETnum, Afc, chaineconst,-, VAnum */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             bilres = creer_bilquad(nquad);
@@ -210,7 +210,32 @@ BILQUAD pp2quad(Noeud* ec) {
             bilq2 = concatq(bilq1, bilq2);
             bilres = concatq(bilq2, bilres);
             break;
-        case I:
+        case Not:
+            /* les ingredients */
+            netiq = gensym("ET");
+            newop = Not;
+            /* la traduction de l'unique argument */
+            bilq1 = pp2quad(ec->gauche);
+            /* se simplifie ? */
+            if (ec->gauche->codop != V) {
+                narg1 = Idalloc();
+                strcpy(narg1, bilq1.fin->RES);
+            }
+            else {
+                narg1 = Idalloc();
+                strcpy(narg1, ec->gauche->ETIQ);
+            }
+
+            narg2 = NULL;
+            nres = gensym("VA");
+            /* on insere le nom de var dans l'environnement */
+            // initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
+            /* le quadruplet: ETnum, Afc, chaineconst,-, VAnum */
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            bilq2 = creer_bilquad(nquad);
+            bilres = concatq(bilq1, bilq2);
+            break;
+        case I: case True: case False:
             /* les ingredients */
             netiq = gensym("ET");
             newop = Afc;
