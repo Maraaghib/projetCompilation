@@ -13,7 +13,7 @@ void typ_error(char *mess, int ligne){
   return;
 }
 
-/* renvoie le type de noeud : TYPEF \in T_int, T_boo, T_com, T_err, T_bot          */
+/* renvoie le type de noeud : TYPEF \in T_int,  T_bool, T_com, T_err, T_bot          */
 /* affecte ce type a la racine                                                 */
 /* suppose corrects les types des fils                                         */
 /* envoie message d'erreur si mal type a la racine et fils bien types          */
@@ -57,7 +57,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
       case Lt:case Eq:         /* int x int -> boo                   */
         type tint,tboo;       /* types  entier, booleen             */
         tint = creer_type(0,T_int);
-        tboo = creer_type(0,T_boo);
+        tboo = creer_type(0,T_bool);
         tgauche = noeud->gauche->typno;
         tdroit = noeud->droit->typno;
         if (type_eq(tgauche,tint) && type_eq(tdroit,tint)){
@@ -71,7 +71,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         return tp;
       case And:case Or:        /* boo x boo -> boo                   */
         type tboo;            /* type  booleen                      */
-        tboo = creer_type(0,T_boo);
+        tboo = creer_type(0,T_bool);
         tgauche = noeud->gauche->typno;
         tdroit = noeud->droit->typno;
         if (type_eq(tgauche,tboo) && type_eq(tdroit,tboo)){
@@ -85,7 +85,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         return tp;
       case Not:                /* boo  -> boo                        */
         type tboo;            /* type  booleen                      */
-        tboo = creer_type(0,T_boo);
+        tboo = creer_type(0,T_bool);
         tgauche = noeud->gauche->typno;
         assert(noeud->droit == NULL); /* op unaire                         */
         if (type_eq(tgauche,tboo)){
@@ -132,7 +132,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         return tp;
       case If:
         type tcom = creer_type(0,T_com);         /* type  commande               */
-        type tboo = creer_type(0,T_boo);          /* type  booleen                */
+        type tboo = creer_type(0,T_bool);          /* type  booleen                */
         tgauche = noeud->gauche->typno;                       /* type  des  3 fils            */
         type tthen = noeud->droit->gauche->typno;
         type telse = noeud->droit->droit->typno;
@@ -149,7 +149,9 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         }
         return tp;
       case Wh:
-        /* a ecrire */
+        type tcom = creer_type(0, T_com);  /* type commande */
+        type tboo = creer_type(0, T_bool); /* type booleen */
+        tgauche = ->gauche->typno;
         return tp;
       default : return tp;                            /* codop inconnu au bataillon */
     }/* fin switch          */
