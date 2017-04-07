@@ -27,7 +27,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
     /* un des fils est mal-type */
     if ((noeud->gauche && type_eq(noeud->gauche->typno,terr))||(noeud->droit && type_eq(noeud->droit->typno,terr))){
 	     type_copy(&tp,terr); /* valeur du  type                              */
-	     type_copy(&(noeud->typno),terr); /* affecte type  erreur                */
+	     type_copy(&(noeud->typno),terr); /* affecte type  erreur           x     */
 	     return tp;
     } /* noeud != NULL et tous les fils sont bien-types */
     switch(noeud->codop){
@@ -38,7 +38,19 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         tp = noeud->typno;
         return tp; /* typno deja affecte     */
       case Ind: /* (tab_dim k of tau) x   int -> (tab_dim k-1 of tau) */
-        /* a ecrire */
+        if (noeud->gauche->typeno->TYPEF != T_err && noeud->droit->typeno->TYPEF != T_err){
+          if (noeud->gauche->typeno->DIM > 0){
+            if (noeud->droit->typeno->TYPEF == T_int){
+              type_copy(&tp, noeud->gauche->typeno);
+              noeud->gauche->DIM--;
+              return tp;
+            } else
+              typ_error("indice non entier ", ligne);
+          } else
+            typ_error("ce n'est pas un tableau ", ligne);
+        }
+        type_copy(&tp, terr);
+        type_copy(&(noeud->typeno), terr);
         return tp;
       case Pl:case Mo:case Mu: /* int x  int -> int */
         type tint;    /* type  des fils  */
@@ -115,7 +127,12 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         }
         return tp;                           /* renvoie le type                  */
       case NewAr:                                             /* creation tableau */
-        
+        if (type_eq(noeud->gauche->typeno, terr) || type_eq(noeud->droit->typeno)){
+          type_copy(&tp, terr);
+          type_copy(&(noeud->typeno, terr), terr);
+          typ_error("initialisation de tableau avec des types differents ", ligne);
+        } else
+          type_copy(&tp, noeud->typeno);
         return tp;
       case Af:                                                     /* affectation */
         if (type_eq(noeud->gauche->typno,noeud->droit->typno) == 0){/* type(lhs) <> type(rhs)    */
