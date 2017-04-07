@@ -98,8 +98,16 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
 ;
 
 Et: V CO E CF /* V [ E ] */{
-    $$ = create_noeud($1, $3, $1, $1->typeno->TYPEF, creer_type(,$1->typeno->TYPEF)) ;}
-  | Et CO E CF /*Et [ E ] */{}
+  ENV pos = rech2($1,env_cour->debut,env_global->debut);
+  if(pos == NULL){
+     yyerror("Variable non déclarée");
+     exit(EXIT_FAILURE);
+   }
+   Noeud *n = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);
+   $$ = create_noeud(n, $3, $1, n->typeno->TYPEF, n->typeno) ;}
+  | Et CO E CF /*Et [ E ] */{
+    $$ = create_noeud($1, $3, $1->ETIQ, $1->typeno->TYPEF, $1->typeno) ;
+  }
   ;
 
 C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}//juste
