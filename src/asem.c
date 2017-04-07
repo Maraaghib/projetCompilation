@@ -115,7 +115,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         }
         return tp;                           /* renvoie le type                  */
       case NewAr:                                             /* creation tableau */
-        /* a ecrire */
+        
         return tp;
       case Af:                                                     /* affectation */
         if (type_eq(noeud->gauche->typno,noeud->droit->typno) == 0){/* type(lhs) <> type(rhs)    */
@@ -139,7 +139,7 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
         if (type_eq(tgauche,tboo) == 0){              /* type arg0  <> booleen         */
           type_copy(&(noeud->typno),terr);        /* affecte type                  */
           type_copy(&tp,terr);
-          typ_error("condition non booleenne dans un IfThEl", ligne);
+          typ_error("condition non booleenne dans un if", ligne);
         } else if (!type_eq(tthen,tcom) || !type_eq(telse,tcom)){ /* arg <> tcom   */
           type_copy(&(noeud->typno),terr);                        /* affecte type  */
           type_copy(&tp,terr);
@@ -151,7 +151,19 @@ type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
       case Wh:
         type tcom = creer_type(0, T_com);  /* type commande */
         type tboo = creer_type(0, T_bool); /* type booleen */
-        tgauche = ->gauche->typno;
+        tgauche = noeud->gauche->typno;
+        tdroit = noeud->droit->typeno;
+        if (type_eq(tgauche,tboo) == 0){
+          type_copy(&(noeud->typeno),terr);
+          type_copy(&tp, terr);
+          typ_error("condition non booleenne dans un while", ligne);
+        } else if ( !type_eq(tdroit, tcom) ){
+          type_copy(&(noeud->typeno),terr);
+          type_copy(&tp, terr);
+        } else {
+          type_copy(&(noeud->typno),tcom);                         /* affecte type */
+          type_copy(&tp,tcom);
+        }
         return tp;
       default : return tp;                            /* codop inconnu au bataillon */
     }/* fin switch          */
