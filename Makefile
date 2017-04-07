@@ -7,12 +7,12 @@ CDEP = util.c environ.c bilquad.c tradpp2c3a.c
 ODEP = $(CDEP:.c=.o)
 INCLUDE = -I include/
 EXE = ppascal
-
+CFLAGS = -g -lfl -Wunused-variable 
 
 all : $(EXE)
 
 ppascal :  $(CBISON) $(CFLEX) $(ODEP)
-	gcc -g -o $@ $(INCLUDE) $^ -lfl
+	gcc -o $@ $(INCLUDE) $^ $(CFLAGS)
 
 $(CBISON): src/$(SRCBISON)
 	bison -d -o$@ $<
