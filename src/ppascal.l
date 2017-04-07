@@ -21,6 +21,10 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 "(" {return PO;}
 ")" {return PF;}
 "," {return Virgule;}
+"[" {return CO;}
+"]" {return CF;}
+"{" {return AO;}
+"}" {return AO;}
 
 "var" {return Var;}
 

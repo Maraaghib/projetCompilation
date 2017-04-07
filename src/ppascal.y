@@ -38,7 +38,7 @@
   struct bilfon* bf;
  }
 
-%token T_bool T_int T_ar T_err T_com T_bot T_fon//type
+%token T_bool T_int T_ar T_err T_com T_bot T_fon T_pro//type
 %token NFon NPro //identificateur
 %token NewAr //new
 %token<Noeud> Mp Def Dep Af Se If Th El Wh Do Pl Mo Mu And Or Not Lt Eq Sk //operateur
@@ -92,8 +92,6 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
    $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);} // Hamza: J'ai remplacé le 4ème argument (pos->typeno->TYPEF) par V. Sinon, le compilateur ne marche pas
 | True {$$ = create_noeud(NULL,NULL,"true",True,creer_type(0,T_bool));}
 | False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));}
-| V PO L_args PF /* V ( L_args ) */ {LFON pos= rechfon($1,liste_fct->debut);
-   $$ = create_noeud($3,NULL,$1,pos->typeno->TYPEF,pos->typeno);}
 | NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = NULL;}
 | Et {$$ = $1;}
 ;
@@ -112,9 +110,9 @@ Et: V CO E CF /* V [ E ] */{
   }
   ;
 
-C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}//juste
+C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 
-| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));} //juste
+| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));} 
 
 | V Af E {ENV pos = rech2($1,env_cour->debut,env_global->debut);
    if(pos == NULL){
@@ -136,12 +134,13 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}//juste
   $$ = create_noeud($2,create_noeud($4,NULL,"Do",Do,creer_type(0,T_com)),"Wh",Wh,creer_type(0,T_com));
  }
 
-| V PO L_args PF /*V ( L_args )*/{ LFON pos = rechfon($1,liste_fct->debut);
-   if(pos == NULL){
-     fprintf(stderr,"Fonctions %s non définie à la ligne %d\n",$1,yylineno);
-     exit(EXIT_FAILURE);
-   }
-   $$ = create_noeud($3,NULL,$1,T_fon,pos->typeno);
+| V PO L_args PF /*V ( L_args )*/{
+  LFON pos = rechfon($1,liste_fct->debut);
+  if(pos == NULL){
+    yyerror("Fonction/Procedure non déclarée");
+    exit(EXIT_FAILURE);
+  }
+  $$ = create_noeud($3,NULL,$1,T_fon,pos->typeno);
  }
 ;
 
@@ -175,7 +174,7 @@ TP: T_bool  {$$  = creer_type(0,T_bool);}
 ;
 
 L_vart: %empty {$$ = NULL;}
-| L_vartnn {$$ = $1;concat(env_cour,$1);}
+| L_vartnn {$$ = $1;env_cour = concat(env_cour,$1);}
 ;
 
 L_vartnn: Var Argt {$$ = $2;}
@@ -184,10 +183,12 @@ L_vartnn: Var Argt {$$ = $2;}
 
 D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{
   env_global = env_cour;
-   env_cour =$4;//$4: env_param // changement env_cour à un env_local
-   $$ = creer_bilfon(creer_fon($2,$4,NULL,NULL,0));
-   liste_fct = concatfn(liste_fct,$$);
-   inbilenv(env_cour,$2,creer_type(0,T_com));/*Ajout du nom de la procedure dans les vars locals*/
+  env_cour =$4;//$4: env_param // changement env_cour à un env_local
+  $$ = creer_bilfon(creer_fon($2,copier_bilenv($4),NULL,NULL,creer_type(0,T_pro)));
+  liste_fct = concatfn(liste_fct,$$);
+  if(env_cour == NULL)
+    env_cour = bilenv_vide();
+  inbilenv(env_cour,$2,creer_type(0,T_com));/*Ajout du nom de la procedure dans les vars locals*/
  }
 ;
 
@@ -202,8 +203,11 @@ D_entf: Def V PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{
 ;
 
 D: D_entp L_vart C {
+  if($2 == NULL)
+    $2 = bilenv_vide();
   inbilenv($2,$1->debut->ID,$1->debut->typeno);
-  $1->debut->VARLOC = copier_bilenv($2); $1->debut->CORPS = $3;
+  $1->debut->VARLOC = copier_bilenv($2);
+  $1->debut->CORPS = $3;
   $$ = $1;
   env_cour = env_global;}
 
