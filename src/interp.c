@@ -4,85 +4,117 @@
 #include "interp.h"
 #include "util.h"
 
-void sem(BILENV benv, BILFON bfon, Noeud *noeud){
-  if ( noeud == NULL )
-    return ;
-  char *etiq;
-  int value;
-  // affectation
-  if (!strcmp(noeud->data , "Af")){
-    // variable ou fonction
-    if (noeud->gauche->tokentype == variable | noeud->gauche->tokentype == funct){
-      etiq = strdup(noeud->gauche->data);
-      printf("etiq vaut %s\n",etiq );
-      value = semval(benv, benv_loc, noeud->droit);
-      printf("valeur : %d\n", value);
-      affectb(benv, bfon->VARLOC, etiq , value);
-    } // cas d'un tableau
-    /*
-    else if (noeud->gauche->ttype == array){
-      int tab = semval(benv, benv_loc, noeud->gauche->gauche);
-      int indice = semval(benv, benv_loc, noeud->gauche->droit);
-      TAS[ADR[tab] + indice] = semval(benv, benv_loc, noeud->droit);
-    }*/
-    return ;
-  }
-  // separateur
-  if (!strcmp(noeud->data, "Se")){
-    sem(benv, benv_loc, noeud->gauche);
-    sem(benv, benv_loc, noeud->droit);
-    return ;
-  }
-  // if then else
-  if (!strcmp(noeud->data, "If")){
-    if (noeud->gauche->data)
-      sem(benv, benv_loc, noeud->droit->gauche);
-    else
-      sem(benv, benv_loc, noeud->droit->droit);
-    return ;
-  }
-  // while
-  if (!strcmp(noeud->data, "Wh")){
-    while (noeud->gauche->data)
-      sem(benv, benv_loc, noeud->droit);
-    return ;
-  }
-  return ;
+/* ------------------VARIABLES GLOBALES ------------------------------*/
+/* le tas; (NIL=0); "vraies" adresses >=1                             */
+int TAS[TAILLEMEM];
+/* ADR[i]=adresse dans le tas du tab i                                */
+int ADR[TAILLEADR];
+/* TAL[i]=taille du tab i                                             */
+int TAL[TAILLEADR];
+int ptasl = 1; /* premiere place libre dans TAS[]                       */
+int padrl = 1; /* premiere place libre dans ADR[]                       */
+/*--------------------------------------------------------------------*/
+/* ----------------------traitement--memoire--------------------------*/
+void init_memoire(){
+  int i = 0;
+  while (i < TAILLEMEM)
+    TAS[i++] = 0;
+  i = 0;
+  while (i < TAILLEADR){
+    ADR[i++] = 0;
+   TAL[i] = 0;
+ }
+}
+/* decrit la memoire: */
+/* ADR[i]: adresse du tableau i dans le TAS */
+/* TAL[i]: taille du tableau i; de ADR[i] a ADR[i] + TAL[i] */
+/* TAS: tableau (statique) contenant tous les tableaux (dynamiques) */
+void ecrire_memoire(int maxadr, int maxtal, int maxtas){
+  int i;
+  printf("Le tableau ADR:\n");
+  printf("------------------------:\n");
+  for(i = 0; i < maxadr; i++)
+    printf("%d : ", ADR[i]);
+  printf("\n");
+  printf("Le tableau TAL:\n");
+  printf("------------------------:\n");
+  for(i = 0; i < maxadr; i++)
+    printf("%d : ",TAL[i]);
+  printf("\n");
+  printf("Le tableau TAS:\n");
+  printf("------------------------:\n");
+  for(i = 0; i < maxtas; i++)
+    printf("%d : ",TAS[i]);
+  printf("\n");
+  return;
 }
 
-int semval(BILENV benv, BILENV benv_loc, Noeud *noeud){
-  if ( noeud == 0 )
+int semval(BILENV env,Noeud *noeud){
+  if(noeud != NULL){
+    ENVTY pos;
+    int res, taille;
+    switch(noeud->codop){
+      case Ind:
+        return TAS[ADR[semval(env, noeud->gauche)] + semval(env, noeud->droit)];
+      case Pl:case Mo:case Mu:case And:case Or:case Lt:case Eq:/* op binaire     */
+        return eval(noeud->codop, semval(env,noeud->gauche), semval(env,noeud->droit));
+      case Not:                                            /* operation unaire      */
+        return eval(noeud->codop, semval(env,noeud->gauche), 0);
+      case I:                        /* numeral          */
+        return atoi(noeud->ETIQ);
+      case V:                         /* variable        */
+        pos = rechty(noeud->ETIQ, env.debut);
+        return pos->VAL;          /* env(var)     */
+      case NewAr:                     /*creation tableau */
+        int taille = semval(env, noeud->droit);
+        ADR[padrl] = ptasl;
+        ptasl += taille;
+        TAL[padrl] = taille;
+        return  padrl++;
+      default: return EXIT_FAILURE;  /* codop inconnu au bataillon */
+    }
+	} else
     return EXIT_FAILURE;
-  ENV env_pos;
-  int res, taille;
-  // cas des operateurs binaires
-  if (op_binaire(noeud->data))
-    return eval(noeud->data, semval(benv, benv_loc, noeud->gauche), semval(benv, benv_loc, noeud->droit));
-  // cas de l'operateur unaire "Not"
-  if (op_unaire(noeud->data))
-    return eval(noeud->data, semval(benv, benv_loc, noeud->gauche), 0);
-  // cas d'une constante
-  if (noeud->tokentype == constante)
-    return atoi(noeud->data);
-  // cas d'une variable ou d'une fonction
-  if (noeud->tokentype == variable | noeud->tokentype == funct){
-    env_pos = rech2(noeud->data, benv->debut, benv_loc->debut);
-    return env_pos->VAL;
+}
+
+/* semantique op a grands pas des commandes                      */
+/* fait agir noeud sur env, le  modifie                           */
+void sem(BILENV env, Noeud *noeud){
+  char *lhs; int rhs; int cond;
+  if (noeud != NULL){
+    switch(noeud->codop){
+      case Mp:
+        semop_gp(env, noeud->gauche);
+        break;
+      case Af:
+        if (noeud->gauche->codop == V){        /* affectation a une variable */
+          lhs = noeud->gauche->ETIQ;
+          printf("lhs vaut %s \n", lhs);
+          rhs = semval(env, noeud->droit);
+          printf("rhs vaut %d \n", rhs);
+          affectb(env, lhs, rhs);
+        } else {
+          assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
+          /*a ecrire */
+        }
+        break;
+      case Sk: break;
+      case Se:
+        semop_gp(env, noeud->gauche);
+        semop_gp(env, noeud->droit);
+        break;
+      case If:
+        if (noeud->gauche->codop)
+          semop_gp(env, noeud->droit->gauche);
+        else
+          semop_gp(env, noeud->droit->droit);
+        break;
+      case Wh:
+        while(noeud->gauche->codop)
+          semop_gp(env, noeud->droit);
+        break;
+      default: break;
+    }
   }
-}
-
-
-/* revoie 1 si la chaine src correspond à
- * un operateur binaire ou 0 sinon.
- */
-int op_binaire(char *src){
-  char *tab[7] = {"Pl", "Mo", "Mu", "And", "Or", "Lt", "Eq"};
-  for (int i = 0; i < 7 ; i++)
-    if (!strcmp(src, tab[i]))
-      return 1;
-  return 0;
-}
-
-int op_unaire(char *src){
-  return !(strcmp(src, "Not"));
+  return;
 }
