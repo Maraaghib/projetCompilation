@@ -20,12 +20,13 @@ ENV Envalloc()
   return e;
 }
 
+
 /*-------------------------------------------------------------------*/
 /*-----------------------------environnements------------------------*/
 
 /* initialise l'environnement *prho par  var=0    */
 /* la chaine var est copiee dans l' environnement */
-int initenv(ENV *prho,char *var, TYPE type)
+int initenv(ENV *prho,char *var, type* typeno)
 {ENV pos, newcell;
   pos=rech(var,*prho);/* adresse de la cellule contenant var */
   if (pos == NULL)
@@ -33,7 +34,7 @@ int initenv(ENV *prho,char *var, TYPE type)
     { newcell=Envalloc();
       strcpy(newcell->ID,var);
       ENV curseur = *prho;
-      newcell->type = type;
+      newcell->typeno = typeno;
       while (curseur->SUIV != NULL)
 	curseur = curseur->SUIV;
       curseur->SUIV = newcell;
@@ -45,23 +46,27 @@ int initenv(ENV *prho,char *var, TYPE type)
     }
 }
 /* retourne (arg1 op arg2) */
-int eval(char * op, int arg1, int arg2){
-  if (!strcmp(op, "Pl"))
-	 return (arg1 + arg2);
-  if (!strcmp(op, "Mo"))
-    return (arg1 - arg2);
-  if (!strcmp(op, "Mu"))
-    return (arg1 * arg2);
-  // passer 0 à arg2 pour le cas "Not"
-  if (!strcmp (op, "And") | !strcmp(op, "Not"))
-    return (arg1 & arg2);
-  if (!strcmp(op, "Or"))
-    return (arg1 | arg2);
-  if (!strcmp(op, "Lt"))
-    return (arg1 < arg2);
-  if (!strcmp(op, "Eq"))
-    return (arg1 == arg2);
-  return 0;
+
+int eval(int op, int arg1, int arg2)
+{switch(op)
+    {case Pl:
+	     return(arg1 + arg2);
+    case Mo:
+      return(arg1 - arg2);
+    case Mu:
+      return(arg1 * arg2);
+    case And: case Not:
+      return (arg1 & arg2);
+    case Or:
+      return (arg1 | arg2);
+    case Lt:
+      return (arg1 < arg2);
+    case Eq:
+      return (arg1 == arg2);
+    default:
+      return(0);
+    }
+  return(0);
 }
 
 /* retourne l'adresse de la cellule contenant chaine. NULL si la chaine est absente */

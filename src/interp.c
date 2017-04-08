@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "interp.h"
 #include "util.h"
+#include "ppascalbison.h"
 
 /* ------------------VARIABLES GLOBALES ------------------------------*/
 /* le tas; (NIL=0); "vraies" adresses >=1                             */
@@ -49,24 +51,24 @@ void ecrire_memoire(int maxadr, int maxtal, int maxtas){
   return;
 }
 
-int semval(BILENV env,Noeud *noeud){
+int semval(BILENV env,BILFON fon, Noeud *noeud){
   if(noeud != NULL){
-    ENVTY pos;
+    ENV pos;
     int res, taille;
     switch(noeud->codop){
       case Ind:
-        return TAS[ADR[semval(env, noeud->gauche)] + semval(env, noeud->droit)];
+        return TAS[ADR[semval(env, fon, noeud->gauche)] + semval(env, fon, noeud->droit)];
       case Pl:case Mo:case Mu:case And:case Or:case Lt:case Eq:/* op binaire     */
-        return eval(noeud->codop, semval(env,noeud->gauche), semval(env,noeud->droit));
+        return eval(noeud->codop, semval(env, fon, noeud->gauche), semval(env, fon, noeud->droit));
       case Not:                                            /* operation unaire      */
-        return eval(noeud->codop, semval(env,noeud->gauche), 0);
+        return eval(noeud->codop, semval(env, fon, noeud->gauche), 0);
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
       case V:                         /* variable        */
-        pos = rechty(noeud->ETIQ, env.debut);
+        pos = rech2(noeud->ETIQ, env->debut, fon->debut->VARLOC->debut);
         return pos->VAL;          /* env(var)     */
       case NewAr:                     /*creation tableau */
-        int taille = semval(env, noeud->droit);
+        taille = semval(env, fon, noeud->droit);
         ADR[padrl] = ptasl;
         ptasl += taille;
         TAL[padrl] = taille;
@@ -79,20 +81,20 @@ int semval(BILENV env,Noeud *noeud){
 
 /* semantique op a grands pas des commandes                      */
 /* fait agir noeud sur env, le  modifie                           */
-void sem(BILENV env, Noeud *noeud){
+void sem(BILENV env, BILFON fon, Noeud *noeud){
   char *lhs; int rhs; int cond;
   if (noeud != NULL){
     switch(noeud->codop){
       case Mp:
-        semop_gp(env, noeud->gauche);
+        sem(env, fon, noeud->gauche);
         break;
       case Af:
         if (noeud->gauche->codop == V){        /* affectation a une variable */
           lhs = noeud->gauche->ETIQ;
           printf("lhs vaut %s \n", lhs);
-          rhs = semval(env, noeud->droit);
+          rhs = semval(env, fon, noeud->droit);
           printf("rhs vaut %d \n", rhs);
-          affectb(env, lhs, rhs);
+          affectb(env, fon->debut->VARLOC, lhs, rhs);
         } else {
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           /*a ecrire */
@@ -100,18 +102,18 @@ void sem(BILENV env, Noeud *noeud){
         break;
       case Sk: break;
       case Se:
-        semop_gp(env, noeud->gauche);
-        semop_gp(env, noeud->droit);
+        sem(env, fon, noeud->gauche);
+        sem(env, fon, noeud->droit);
         break;
       case If:
         if (noeud->gauche->codop)
-          semop_gp(env, noeud->droit->gauche);
+          sem(env, fon, noeud->droit->gauche);
         else
-          semop_gp(env, noeud->droit->droit);
+          sem(env, fon, noeud->droit->droit);
         break;
       case Wh:
         while(noeud->gauche->codop)
-          semop_gp(env, noeud->droit);
+          sem(env, fon, noeud->droit);
         break;
       default: break;
     }

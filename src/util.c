@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../ppascalbison.h"
 #include "environ.h"
 #include "util.h"
 
@@ -22,14 +23,22 @@ void prefix(Noeud *n){
   print_tree_ter(n);
 }
 
+int est_feuille(Noeud* n){
+  return (n->droit == NULL && n->gauche == NULL);
+}
+
+type* talloc(){
+  return (type*)malloc(sizeof(type));
+}
+
 /*****************Noeud ***********************************/
-Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,TYPE ntype, TOKENTYPE tk){
+Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,int ntype,type* tk){
   Noeud* new_noeud = (Noeud*)malloc(sizeof(struct Noeud));
   new_noeud->gauche = fgauche;
   new_noeud->droit = fdroit;
-  new_noeud->data = id;
-  new_noeud->ttype = ntype;
-  new_noeud->tokentype = tk;
+  new_noeud->ETIQ = id;
+  new_noeud->codop = ntype;
+  new_noeud->typeno = tk;
 
   return new_noeud;
 
@@ -38,43 +47,82 @@ Noeud* create_noeud(Noeud *fgauche, Noeud* fdroit,char* id,TYPE ntype, TOKENTYPE
 void print_tree(Noeud* n, FILE* f) {}
 
 void print_tree_ter(Noeud* n) {
+  if(n!= NULL){
+
+    printf("%s ",n->ETIQ);
+    print_tree_ter(n->gauche);
+    print_tree_ter(n->droit);
+
+  }
 
 }
 
 /*****************Biliste d'environnement *****************/
-ENV creer_env(char* etiq, int val, TYPE type){
+
+int type_eq(type* t1, type* t2){
+  if(t1->DIM == t2->DIM)
+    if(t1->TYPEF == t2->TYPEF)
+      return 1;
+  return 0;
+}
+
+void type_copy(type* tcop, type* torig){
+  tcop = creer_type(torig->DIM,torig->TYPEF);
+}
+
+void type_affect(ENV rho, type* tvar){
+  rho->typeno = tvar;
+}
+
+type* creer_type(int dm, int tf){
+  type* n_type = (type*)malloc(sizeof(type));
+  n_type->DIM = dm;
+  n_type->TYPEF = tf;
+  return n_type;
+}
+
+type* type_res_op(int op) {}
+
+void ecrire_type(type* tp){
+  printf("dim: %d type: %d", tp->DIM, tp->TYPEF);
+}
+
+ENV creer_env(char* etiq, int val, type* typeno){
   ENV e = Envalloc();
-
-  initenv(&e, etiq, type);
-  affect(e,etiq,val);
-
+  strcpy(e->ID,etiq);
+  e->VAL = val;
+  e->typeno = typeno;
+  e->SUIV = NULL;
   return e;
 }
 
 ENV copier_env(ENV env){
-  ENV copie_env = Envalloc();
 
-  strcpy(copie_env->ID,env->ID);
-  copie_env->type = env->type;
-  copie_env->VAL = env->VAL;
+  return creer_env(env->ID,env->VAL,env->typeno);
 
-  return copie_env;
 }
 
 //Regarde d'abord dans l'environnement rho_lc (environnement local)
 ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
-  ENV e = rech(chaine,rho_lc);
-  if( e != NULL)
-    return e;
-  else
-    return rech(chaine,rho_gb);
+  if( chaine != NULL || rho_gb != NULL || rho_lc != NULL){
+    ENV e = rech(chaine,rho_lc);
+    if( e != NULL)
+      return e;
+    else
+      return rech(chaine,rho_gb);
+  }
+  return NULL;
 }
 
 /*****************Biliste de Var *****************/
 
-void inbilenv(BILENV phro, char * var, TYPE t){
-  ENV new_e = Envalloc();
-  initenv(&new_e,var, t);
+void inbilenv(BILENV phro, char * var, type* t){
+  ENV new_e =creer_env(var,0,t);
+  if(phro->debut == NULL){
+    phro->debut = new_e;
+    phro->fin = new_e;
+  }
+  else
   phro->fin->SUIV = new_e;
   phro->fin = new_e;
 }
@@ -90,17 +138,21 @@ BILENV bilenv_vide(){
 
 BILENV creer_bilenv(ENV var){
   BILENV new_be = bilenv_vide();
-  new_be->debut = var ;
-  new_be->fin = var ;
+  new_be->debut = var;
+  new_be->fin = var;
 
   return new_be;
 }
 
 BILENV copier_bilenv(BILENV b){
+  if(b == NULL)
+    return NULL;
   BILENV copie_b = bilenv_vide();
   ENV curseur, copie_curseur;
   curseur = b->debut;
   copie_curseur = copier_env(curseur);
+  copie_b->debut = copie_curseur;
+  curseur = curseur->SUIV;
 
   while(curseur != NULL){
     copie_curseur->SUIV = copier_env(curseur);
@@ -113,12 +165,14 @@ BILENV copier_bilenv(BILENV b){
 }
 
 BILENV concat(BILENV b1, BILENV b2){
-  BILENV b_cat1 = copier_bilenv(b1);
-  BILENV b_cat2 = copier_bilenv(b2);
-  
-  b_cat1->fin->SUIV = b_cat2->debut;
-  b_cat1->fin = b_cat2->fin;
-
+  if(b1->debut == NULL){
+    b1->debut = b2->debut;
+    b1->fin = b2->fin;
+  }
+  else{
+    b1->fin->SUIV = b2->debut;
+    b1->fin = b2->fin;
+  }
   return b1;
 }
 
@@ -132,7 +186,7 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs){
     //tentative d'affectation dans l'environ global
     if(affect(rho_gb->debut,lhs,rhs) != EXIT_SUCCESS)
       fprintf(stderr,"La var %s est inexistante\n", lhs);
-  
+
   return;
 }
 
@@ -146,13 +200,13 @@ void liberer_bilenv(BILENV be){
 }
 
 /*****************fonctions*****************/
-LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, Noeud* com, TYPE tp) {
+LFON creer_fon(char *nfon,BILENV lparam, BILENV lvar, Noeud* com, type* tp) {
   LFON new_f = Lfonalloc();
   strcpy(new_f->ID,nfon);
   new_f->PARAM = lparam;
   new_f->VARLOC = lvar;
   new_f->CORPS = com;
-  new_f->type = tp;
+  new_f->typeno = tp;
   new_f->SUIV = NULL;
 }
 
@@ -165,14 +219,12 @@ LFON copier_fon(LFON lfn){
   new_f->SUIV = NULL;
 }
 
-char* typetochar(TYPE tp){
+char* typetochar(int tp){
   switch (tp){
-  case integer :
+  case T_int :
     return "integer";
-  case boolean :
+  case T_bool :
     return "boolean";
-  case array :
-    return "array";
   default:
    break;
   }
@@ -180,7 +232,8 @@ char* typetochar(TYPE tp){
 }
 
 void ecrire_fon(LFON bfn){
-  printf("%s : %s \n", bfn->ID, typetochar(bfn->type));
+  printf("%s : ", bfn->ID);
+  ecrire_type(bfn->typeno);
   printf("*****Param*****\n");
   ecrire_env(bfn->PARAM->debut);
   printf("*****Varloc*****\n");
@@ -209,7 +262,7 @@ void liberer_lfon(LFON fon){
   //liberer_arbre(fon->CORPS);
   free(fon);
 }
-  
+
 /*****************Bilfon*****************/
 
 BILFON bilfon_vide(){
@@ -224,7 +277,7 @@ BILFON creer_bilfon(LFON pfon){
   BILFON new_bf = (BILFON)malloc(sizeof(struct bilfon));
   new_bf->debut = pfon;
   new_bf->fin = pfon;
-  
+
   return new_bf;
 }
 
@@ -246,12 +299,11 @@ BILFON copier_bilfon(BILFON bfn){
 }
 
 BILFON concatfn(BILFON b1, BILFON b2){
-  BILFON b_cat, b_cat2;
-  b_cat = copier_bilfon(b1);
-  b_cat2 = copier_bilfon(b2);
-  b_cat->fin->SUIV = b_cat2->debut;
-  b_cat->fin = b_cat2->fin;
-
+  if(b1 == NULL)
+    return b2;
+  b1->fin = b2->debut;
+  b1->fin->SUIV = b2->fin;
+  
   return b1;
 }
 
@@ -261,11 +313,13 @@ BILFON concatfn(BILFON b1, BILFON b2){
   }*/
 
 void ecrire_bilfon(BILFON bfn){
-  LFON curseur = bfn->debut;
-
-  while(curseur != NULL){
-    ecrire_fon(curseur);
-    curseur = curseur->SUIV;
+  if(bfn != NULL){
+    LFON curseur = bfn->debut;
+    
+    while(curseur != NULL){
+      ecrire_fon(curseur);
+      curseur = curseur->SUIV;
+    }
   }
 }
 
@@ -279,10 +333,12 @@ void liberer_bilfon(BILFON bfon){
 }
 
 void ecrire_prog(BILENV argb, BILFON argbf, Noeud* argno){
-  printf("/***** Arguments global *****/\n");
+  printf("/**Programme avant execution !**/\n");
+  printf("/***** Variables globales *****/\n");
   ecrire_bilenv(argb);
   printf("/***** Fonctions *****/\n");
   ecrire_bilfon(argbf);
   printf("/***** prog principal *****/\n");
   prefix(argno);
+  printf("\n");
 }

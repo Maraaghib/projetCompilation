@@ -1,3 +1,11 @@
+# Fichiers produits par Flex et Bison
+ppascal
+ppascalbison.c
+ppascalbison.h
+ppascalflex.c
+
+
+
 *.exe.*
 
 # Object files
