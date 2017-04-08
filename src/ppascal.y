@@ -26,7 +26,7 @@
   BILENV param_cour;
   int type_fct; // vaut 0 pour les procedures
 
-  
+
 
   int i =0;
 
@@ -126,7 +126,7 @@ Et: V CO E CF /* V [ E ] */{
 
 C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 
-| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));} 
+| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));}
 
 | V Af E {ENV pos = rech2($1,env_cour->debut,env_global->debut);
    if(pos == NULL){
@@ -140,7 +140,7 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 | AO C AF {$$ = $2;} //{ C }
 
 | If E Th C El C {
-  $$ = create_noeud($2,create_noeud($4,create_noeud($6,NULL,"El",El,creer_type(0,T_com)),"Th",Th,creer_type(0,T_com)),"If",If,creer_type(0,T_com));
+  $$ = create_noeud($2, create_noeud($4, $6, "", 0, creer_type(0, T_com)), "IfThEl", If, creer_type(0, T_com));
  }
 
 | Wh E Do C {
@@ -251,7 +251,7 @@ int main(int argc, char **argv){
   env_cour = env_global;
   type_base  = creer_type(0,T_bot);
   liste_fct = bilfon_vide();
-  
+
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/
