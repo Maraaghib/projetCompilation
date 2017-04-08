@@ -208,14 +208,16 @@ void yyerror(char *s){
 int yywrap(){}
 
 int main(int argc, char **argv){
-  env_global = bilenv_vide();
-  env_cour = env_global;
+  //env_global = bilenv_vide();
+  //env_cour = env_global;
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/
   yyparse();
   /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
-  /*printf("Avant pp2quad\n");*/
+  printf("Avant pp2quad\n");
+  sem(env_global, liste_fct, syntree);
+  ecrire_bilenv(env_global);
   BILQUAD bilq = pp2quad(syntree);
   /*printf("Après pp2quad\n");*/
   printf("\n\n");

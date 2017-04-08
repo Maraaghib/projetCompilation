@@ -82,7 +82,8 @@ int semval(BILENV env,BILFON fon, Noeud *noeud){
 /* semantique op a grands pas des commandes                      */
 /* fait agir noeud sur env, le  modifie                           */
 void sem(BILENV env, BILFON fon, Noeud *noeud){
-  char *lhs; int rhs; int cond;
+  char *lhs;
+  int rhs, cond;
   if (noeud != NULL){
     switch(noeud->codop){
       case Mp:
@@ -97,7 +98,9 @@ void sem(BILENV env, BILFON fon, Noeud *noeud){
           affectb(env, fon->debut->VARLOC, lhs, rhs);
         } else {
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
-          /*a ecrire */
+          int tab = semval(env, fon, noeud->gauche->gauche);
+          int ind = semval(env, fon, noeud->gauche->droit);
+          TAS[ADR[tab] + ind] = semval(env, fon, noeud->droit);
         }
         break;
       case Sk: break;
