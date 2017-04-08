@@ -24,7 +24,7 @@ VAR [a-zA-Z]+[a-zA-Z0-9]*
 "[" {return CO;}
 "]" {return CF;}
 "{" {return AO;}
-"}" {return AO;}
+"}" {return AF;}
 
 "var" {return Var;}
 

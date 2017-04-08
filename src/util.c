@@ -104,7 +104,7 @@ ENV copier_env(ENV env){
 
 //Regarde d'abord dans l'environnement rho_lc (environnement local)
 ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
-  if( chaine != NULL || rho_gb != NULL || rho_lc != NULL){
+  if( chaine != NULL && (rho_gb != NULL || rho_lc != NULL)){
     ENV e = rech(chaine,rho_lc);
     if( e != NULL)
       return e;
@@ -232,14 +232,17 @@ char* typetochar(int tp){
 }
 
 void ecrire_fon(LFON bfn){
-  printf("%s : ", bfn->ID);
+  printf("\t\t%s : ", bfn->ID);
   ecrire_type(bfn->typeno);
-  printf("*****Param*****\n");
-  ecrire_env(bfn->PARAM->debut);
+  printf("\n*****Param*****\n");
+  if(bfn->PARAM != NULL)
+    ecrire_env(bfn->PARAM->debut);
   printf("*****Varloc*****\n");
-  ecrire_env(bfn->VARLOC->debut);
+  if(bfn->VARLOC != NULL)
+    ecrire_env(bfn->VARLOC->debut);
   printf("*****Corps*****\n");
   prefix(bfn->CORPS);
+  printf("\n");
 
 }
 
@@ -299,11 +302,14 @@ BILFON copier_bilfon(BILFON bfn){
 }
 
 BILFON concatfn(BILFON b1, BILFON b2){
-  if(b1 == NULL)
-    return b2;
-  b1->fin = b2->debut;
-  b1->fin->SUIV = b2->fin;
-  
+  if(b1->debut == NULL){
+    b1->debut = b2->debut;
+    b1->fin = b2->fin;
+  }
+  else{
+    b1->fin->SUIV = b2->debut;
+    b1->fin = b2->fin;
+  }
   return b1;
 }
 

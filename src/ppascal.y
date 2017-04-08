@@ -3,6 +3,7 @@
   #include <stdlib.h>
   #include <stdbool.h>
   #include <unistd.h>
+  #include "../ppascalbison.h"
   #include "util.h"
   #include "environ.h"
   #include "bilquad.h"
@@ -18,11 +19,14 @@
   ENV envrnt;
   BILFON liste_fct;
 
+  type* type_base;
 
 
   char* fct_cour;
   BILENV param_cour;
   int type_fct; // vaut 0 pour les procedures
+
+  
 
   int i =0;
 
@@ -88,11 +92,21 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
    if(pos == NULL){
      yyerror("Variable non déclarée");
      exit(EXIT_FAILURE);
-   }
+     }
    $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);} // Hamza: J'ai remplacé le 4ème argument (pos->typeno->TYPEF) par V. Sinon, le compilateur ne marche pas
+
 | True {$$ = create_noeud(NULL,NULL,"true",True,creer_type(0,T_bool));}
 | False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));}
 | NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = NULL;}
+
+| V PO L_args PF /*V ( L_args )*/{
+  LFON pos = rechfon($1,liste_fct->debut);
+  if(pos == NULL){
+    yyerror("Fonction/Procedure non déclarée");
+    exit(EXIT_FAILURE);
+  }
+  $$ = create_noeud($3,NULL,$1,T_fon,pos->typeno);
+ }
 | Et {$$ = $1;}
 ;
 
@@ -120,7 +134,6 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
      exit(EXIT_FAILURE);
    }
    $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->typeno->TYPEF,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
-   // juste
  }
 | Sk {$$ = create_noeud(NULL,NULL,"Sk",Sk,creer_type(0,T_com));}
 
@@ -183,7 +196,7 @@ L_vartnn: Var Argt {$$ = $2;}
 
 D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{
   env_global = env_cour;
-  env_cour =$4;//$4: env_param // changement env_cour à un env_local
+  env_cour =$4;//$4: env_param, changement env_cour à un env_local
   $$ = creer_bilfon(creer_fon($2,copier_bilenv($4),NULL,NULL,creer_type(0,T_pro)));
   liste_fct = concatfn(liste_fct,$$);
   if(env_cour == NULL)
@@ -194,7 +207,7 @@ D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{
 
 D_entf: Def V PO L_argt PF DPoints TP /* Def NFon ( L_argt ) : TP*/{
   env_global = env_cour;
-  env_cour = $4;//$4: env_param // changement env_cour à un env_local
+  env_cour = $4;//$4: env_param, changement env_cour à un env_local
   $$ = creer_bilfon(creer_fon($2,copier_bilenv($4),NULL,NULL,$7));
   liste_fct = concatfn(liste_fct,$$);
   if(env_cour== NULL)
@@ -206,7 +219,7 @@ D: D_entp L_vart C {
   if($2 == NULL)
     $2 = bilenv_vide();
   inbilenv($2,$1->debut->ID,$1->debut->typeno);
-  $1->debut->VARLOC = copier_bilenv($2);
+  $1->debut->VARLOC = $2;
   $1->debut->CORPS = $3;
   $$ = $1;
   env_cour = env_global;}
@@ -215,14 +228,14 @@ D: D_entp L_vart C {
   if($2 == NULL)
     $2 = bilenv_vide();
   inbilenv($2,$1->debut->ID,$1->debut->typeno);
-  $1->debut->VARLOC = copier_bilenv($2) ;
+  $1->debut->VARLOC = $2 ;
   $1->debut->CORPS = $3;
   $$ = $1;
   env_cour = env_global;}
 ;
 
 LD: %empty {$$ = NULL;}
-| LD D {$$ = concatfn($1,$2);}
+| LD D {$$ = liste_fct;}
 ;
 
 %%
@@ -236,6 +249,9 @@ int yywrap(){}
 int main(int argc, char **argv){
   env_global = bilenv_vide();
   env_cour = env_global;
+  type_base  = creer_type(0,T_bot);
+  liste_fct = bilfon_vide();
+  
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/
@@ -244,7 +260,7 @@ int main(int argc, char **argv){
   /*printf("Avant pp2quad\n");*/
   BILQUAD bilq = pp2quad(syntree);
   /*printf("Après pp2quad\n");*/
-  printf("\n\n");
+   printf("\n\n");
   printf("\n******* Le code C3A du programme Pseudo-Pascal: *******\n\n");
   ecrire_sep_bilquad(bilq);
   printf("\n");
