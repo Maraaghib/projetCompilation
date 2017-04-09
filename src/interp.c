@@ -51,7 +51,7 @@ void ecrire_memoire(int maxadr, int maxtal, int maxtas){
   return;
 }
 
-int semval(BILENV env,BILFON fon, Noeud *noeud){
+int semval(BILENV *env, BILFON *fon, Noeud *noeud){
   if(noeud != NULL){
     ENV pos;
     int res, taille;
@@ -65,10 +65,10 @@ int semval(BILENV env,BILFON fon, Noeud *noeud){
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
       case V:                         /* variable        */
-				if (fon->debut != NULL)
-					pos = rech2(noeud->ETIQ, env->debut, fon->debut->VARLOC->debut);
+				if ((*fon)->debut != NULL)
+					pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->VARLOC->debut);
 				else
-					pos = rech(noeud->ETIQ, env->debut);
+					pos = rech(noeud->ETIQ, (*env)->debut);
         return pos->VAL;          /* env(var)     */
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
@@ -84,7 +84,7 @@ int semval(BILENV env,BILFON fon, Noeud *noeud){
 
 /* semantique op a grands pas des commandes                      */
 /* fait agir noeud sur env, le  modifie                           */
-void sem(BILENV env, BILFON fon, Noeud *noeud){
+void sem(BILENV *env, BILFON *fon, Noeud *noeud){
   char *lhs;
   int rhs, cond;
   if (noeud != NULL){
@@ -95,13 +95,13 @@ void sem(BILENV env, BILFON fon, Noeud *noeud){
       case Af:
         if (noeud->gauche->codop == V){        /* affectation a une variable */
           lhs = noeud->gauche->ETIQ;
-          printf("lhs vaut %s \n", lhs);
+          //printf("lhs vaut %s \n", lhs);
           rhs = semval(env, fon, noeud->droit);
-          printf("rhs vaut %d \n", rhs);
-          if (fon->debut != NULL)
-						affectb(env, fon->debut->VARLOC, lhs, rhs);
+          //printf("rhs vaut %d \n", rhs);
+          if ((*fon)->debut != NULL)
+						affectb(*env, (*fon)->debut->VARLOC, lhs, rhs);
 					else 
-						affectb(env, NULL, lhs, rhs);
+						affect((*env)->debut, lhs, rhs);
         } else {
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           int tab = semval(env, fon, noeud->gauche->gauche);

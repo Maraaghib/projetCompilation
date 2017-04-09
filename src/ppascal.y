@@ -20,12 +20,7 @@
   ENV envrnt;
   BILFON liste_fct;
 
-<<<<<<< HEAD
-=======
   type* type_base;
-
-
->>>>>>> master
   char* fct_cour;
   BILENV param_cour;
   int type_fct; // vaut 0 pour les procedures
@@ -121,10 +116,10 @@ Et: V CO E CF /* V [ E ] */{
      exit(EXIT_FAILURE);
    }
    Noeud *n = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);
-   $$ = create_noeud(n, $3, $1, n->typeno->TYPEF, n->typeno) ;
+   $$ = create_noeud(n, $3, $1, Ind, n->typeno) ;
  }
   | Et CO E CF /*Et [ E ] */{
-    $$ = create_noeud($1, $3, $1->ETIQ, $1->typeno->TYPEF, $1->typeno) ;
+    $$ = create_noeud($1, $3, $1->ETIQ, Ind, $1->typeno) ;
   }
   ;
 
@@ -137,7 +132,7 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
      yyerror("Variable non déclarée");
      exit(EXIT_FAILURE);
    }
-   $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->typeno->TYPEF,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
+   $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,V,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
  }
 | Sk {$$ = create_noeud(NULL,NULL,"Sk",Sk,creer_type(0,T_com));}
 
@@ -262,7 +257,7 @@ int main(int argc, char **argv){
   yyparse();
   /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
   printf("Avant pp2quad\n");
-  sem(env_global, liste_fct, syntree);
+  sem(&env_global, &liste_fct, syntree);
   ecrire_bilenv(env_global);
   BILQUAD bilq = pp2quad(syntree);
   /*printf("Après pp2quad\n");*/

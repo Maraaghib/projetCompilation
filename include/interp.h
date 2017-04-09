@@ -2,8 +2,8 @@
 #define __INTERP__H__
 #include "util.h"
 
-extern void sem(BILENV, BILFON, Noeud *);
-extern int semval(BILENV, BILFON, Noeud *);
+extern void sem(BILENV *, BILFON *, Noeud *);
+extern int semval(BILENV *, BILFON *, Noeud *);
 void init_memoire();/* initialise le tas: TAS, ADR, TAL    */
 /* decrit la memoire: ADR, TAL, TAS */
 void ecrire_memoire(int maxadr, int maxtal, int maxtas);

@@ -181,13 +181,11 @@ void ecrire_bilenv(BILENV b){
 }
 
 void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs){
-  if (rho_lc != NULL)
 	//tentative d'affectation dans la l'environ local
 	if(affect(rho_lc->debut, lhs, rhs) != EXIT_SUCCESS)
 		//tentative d'affectation dans l'environ global
 		if(affect(rho_gb->debut,lhs,rhs) != EXIT_SUCCESS)
 			fprintf(stderr,"La var %s est inexistante\n", lhs);
-
   return;
 }
 
