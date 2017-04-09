@@ -256,9 +256,19 @@ int main(int argc, char **argv){
   prefix(syntree);*/
   yyparse();
   /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
-  printf("Avant pp2quad\n");
+  //printf("Avant pp2quad\n");
+  printf("\x1b[31m%p\n\x1b[0m", liste_fct->debut);
+  init_memoire();
+  printf("\nLes variables globales avant exec:\n");
+  printf("------------------------:\n");
+  ecrire_bilenv(env_global); printf("\n");
   sem(&env_global, &liste_fct, syntree);
-  ecrire_bilenv(env_global);
+  ecrire_memoire(5,5,20);
+  printf("\nLes variables globales apres exec:\n");
+  printf("------------------------:\n");
+  ecrire_bilenv(env_global); printf("\n");
+  ecrire_memoire(5,5,20);
+  return 1;
   BILQUAD bilq = pp2quad(syntree);
   /*printf("Après pp2quad\n");*/
    printf("\n\n");

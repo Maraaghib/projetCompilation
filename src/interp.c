@@ -2,9 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "interp.h"
 #include "util.h"
 #include "ppascalbison.h"
+
+#define BLUE "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define RESET "\x1b[0m"
 
 /* ------------------VARIABLES GLOBALES ------------------------------*/
 /* le tas; (NIL=0); "vraies" adresses >=1                             */
@@ -56,6 +61,10 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
     ENV pos;
     int res, taille;
     switch(noeud->codop){
+      case True:
+        return true;
+      case False:
+        return false;
       case Ind:
         return TAS[ADR[semval(env, fon, noeud->gauche)] + semval(env, fon, noeud->droit)];
       case Pl:case Mo:case Mu:case And:case Or:case Lt:case Eq:/* op binaire     */
@@ -65,10 +74,13 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
       case V:                         /* variable        */
-				if ((*fon)->debut != NULL)
+				if ((*fon)->debut != NULL){
 					pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->VARLOC->debut);
-				else
+          printf(BLUE "CAS FONCTION\n" RESET);
+        } else {
 					pos = rech(noeud->ETIQ, (*env)->debut);
+          printf(BLUE "CAS AUTRE\n" RESET);
+        }
         return pos->VAL;          /* env(var)     */
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
@@ -98,11 +110,16 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
           //printf("lhs vaut %s \n", lhs);
           rhs = semval(env, fon, noeud->droit);
           //printf("rhs vaut %d \n", rhs);
+          printf(BLUE "Af : %p\n" RESET, (*fon)->debut);
           if ((*fon)->debut != NULL)
 						affectb(*env, (*fon)->debut->VARLOC, lhs, rhs);
-					else 
+					else
 						affect((*env)->debut, lhs, rhs);
+          printf(MAGENTA);
+          ecrire_bilfon(*fon);
+          printf(RESET"\n");
         } else {
+          printf(BLUE "AF : %p\n" RESET, (*fon)->debut);
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           int tab = semval(env, fon, noeud->gauche->gauche);
           int ind = semval(env, fon, noeud->gauche->droit);
@@ -115,13 +132,13 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
         sem(env, fon, noeud->droit);
         break;
       case If:
-        if (noeud->gauche->codop)
+        if (semval(env , fon, noeud->gauche))
           sem(env, fon, noeud->droit->gauche);
         else
           sem(env, fon, noeud->droit->droit);
         break;
       case Wh:
-        while(noeud->gauche->codop)
+        while(semval(env , fon, noeud->gauche))
           sem(env, fon, noeud->droit);
         break;
       default: break;
