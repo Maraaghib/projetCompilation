@@ -116,7 +116,7 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}//juste
      yyerror("Variable non déclarée");
      exit(EXIT_FAILURE);
    }
-   $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,pos->typeno->TYPEF,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
+   $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,V,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
    // juste
  }
 | Sk {printf("Sk\n");}
@@ -208,8 +208,9 @@ void yyerror(char *s){
 int yywrap(){}
 
 int main(int argc, char **argv){
-  //env_global = bilenv_vide();
-  //env_cour = env_global;
+  env_global = bilenv_vide();
+  env_cour = env_global;
+  liste_fct = bilfon_vide();
   /* Compiler Pseudo-Pascal to C3A */
   /*printf("\n L'arbre de syntaxe astraite: \n");
   prefix(syntree);*/

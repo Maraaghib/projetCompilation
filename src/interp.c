@@ -65,7 +65,10 @@ int semval(BILENV env,BILFON fon, Noeud *noeud){
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
       case V:                         /* variable        */
-        pos = rech2(noeud->ETIQ, env->debut, fon->debut->VARLOC->debut);
+				if (fon->debut != NULL)
+					pos = rech2(noeud->ETIQ, env->debut, fon->debut->VARLOC->debut);
+				else
+					pos = rech(noeud->ETIQ, env->debut);
         return pos->VAL;          /* env(var)     */
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
@@ -95,7 +98,10 @@ void sem(BILENV env, BILFON fon, Noeud *noeud){
           printf("lhs vaut %s \n", lhs);
           rhs = semval(env, fon, noeud->droit);
           printf("rhs vaut %d \n", rhs);
-          affectb(env, fon->debut->VARLOC, lhs, rhs);
+          if (fon->debut != NULL)
+						affectb(env, fon->debut->VARLOC, lhs, rhs);
+					else 
+						affectb(env, NULL, lhs, rhs);
         } else {
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           int tab = semval(env, fon, noeud->gauche->gauche);
