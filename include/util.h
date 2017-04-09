@@ -68,7 +68,7 @@ extern void type_affect(ENV rho, type* tvar);/* affecte le type  de   *rho      
 extern type* creer_type(int dm, int tf);/* retourne le type                       */
 extern type* type_res_op(int op);/* retourne le type resultat de op               */
 extern void ecrire_type(type* tp);      /* ecrit le type  */
-extern ENV creer_env(char *etiq, int val, type* type);/*pointe vers cette var            */ //DONE \/ \/
+extern ENV creer_env(char *etiq, int val, type* typvar);/*pointe vers cette var            */ //DONE \/ \/
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */

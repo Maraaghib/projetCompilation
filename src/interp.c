@@ -3,7 +3,7 @@
  #include <string.h>
  #include "include/util.h"
  #include "ppascalbison.h"
-#include "interp.h"
+ #include "interp.h"
 
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
@@ -138,7 +138,7 @@ void typ_error(char *mess,int ligne)
 /* suppose corrects les types des fils                                         */
 /* envoie message d'erreur si mal type a la racine et fils bien types          */
 /* renvoie T_err si l'arbre est mal-type                                       */
-type calcul_type(BILENVTY rho_gb, NOE e, int ligne)
+type calcul_type(BILENV rho_gb, NOE e, int ligne)
 { type tp;
   tp= creer_type(0,T_bot);/* type par defaut */
   if(e != NULL)

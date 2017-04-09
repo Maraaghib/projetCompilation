@@ -6,7 +6,7 @@ CFLEX = $(SRCFLEX:.l=flex.c)
 CDEP = util.c environ.c bilquad.c tradpp2c3a.c
 ODEP = $(CDEP:.c=.o)
 INCLUDE = -I include/
-EXE = ppascal
+EXE = ppascal interppC3A
 CFLAGS = -g -lfl -Wunused-variable 
 
 all : $(EXE)
@@ -31,6 +31,8 @@ bilquad.o : src/bilquad.c include/bilquad.h include/environ.h $(CBISON)
 
 tradpp2c3a.o : src/tradpp2c3a.c include/bilquad.h include/util.h include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
-
+	
+interppC3A: src/interppC3A.c include/bilquad.h include/util.h include/environ.h $(CBISON)
+	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 clean:
 	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP)
