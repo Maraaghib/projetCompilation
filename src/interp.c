@@ -58,7 +58,7 @@ void ecrire_memoire(int maxadr, int maxtal, int maxtas){
 
 int semval(BILENV *env, BILFON *fon, Noeud *noeud){
   if(noeud != NULL){
-    ENV pos;
+    ENV pos; LFON fpos, ftmp; BILFON bfon;
     int res, taille;
     switch(noeud->codop){
       case True:
@@ -73,15 +73,27 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
         return eval(noeud->codop, semval(env, fon, noeud->gauche), 0);
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
+      case T_fon:
+		fpos = rechfon(noeud->ETIQ, (*fon)->debut);
+		bfon = creer_bilfon(fpos);
+		//bfon->debut->PARAM = *env;
+		fpos->VARLOC = concat(*env, fpos->VARLOC);
+		if (fpos != NULL)
+			sem(&fpos->VARLOC, &bfon, fpos->CORPS);
       case V:                         /* variable        */
 				if ((*fon)->debut != NULL){
 					pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->VARLOC->debut);
-          printf(BLUE "CAS FONCTION\n" RESET);
+					if (pos == NULL)
+						pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->PARAM->debut);
+						
+          printf(BLUE "CAS FONCTION %s : %p\n" RESET,noeud->ETIQ, pos);
         } else {
 					pos = rech(noeud->ETIQ, (*env)->debut);
           printf(BLUE "CAS AUTRE\n" RESET);
         }
-        return pos->VAL;          /* env(var)     */
+        if (pos != NULL)
+			return pos->VAL;          /* env(var)     */
+		return EXIT_FAILURE;
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
         ADR[padrl] = ptasl;
@@ -99,6 +111,7 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
 void sem(BILENV *env, BILFON *fon, Noeud *noeud){
   char *lhs;
   int rhs, cond;
+  LFON fpos;
   if (noeud != NULL){
     switch(noeud->codop){
       case Mp:
@@ -111,10 +124,12 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
           rhs = semval(env, fon, noeud->droit);
           //printf("rhs vaut %d \n", rhs);
           printf(BLUE "Af : %p\n" RESET, (*fon)->debut);
-          if ((*fon)->debut != NULL)
-						affectb(*env, (*fon)->debut->VARLOC, lhs, rhs);
-					else
-						affect((*env)->debut, lhs, rhs);
+          if (noeud->droit->codop == T_fon){
+			fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
+			if (fpos != NULL)
+				affectb(*env, fpos->VARLOC, lhs, rhs);
+			} else
+				affect((*env)->debut, lhs, rhs);
           printf(MAGENTA);
           ecrire_bilfon(*fon);
           printf(RESET"\n");
