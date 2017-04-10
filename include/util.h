@@ -70,7 +70,7 @@ extern void type_affect(ENV rho, type* tvar);/* affecte le type  de   *rho      
 extern type* creer_type(int dm, int tf);/* retourne le type                       */
 extern type* type_res_op(int op);/* retourne le type resultat de op               */
 extern void ecrire_type(type* tp);      /* ecrit le type  */
-extern ENV creer_env(char *etiq, int val, type* typvar);/*pointe vers cette var            */ //DONE \/ \/
+extern ENV creer_env(char *etiq, int val, type* typvar);/*pointe vers cette var            */ 
 extern ENV copier_env(ENV env);/*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/ // PAS OK
 /* retourne la position de chaine (rho_lc est prioritaire) */
@@ -101,7 +101,7 @@ extern BILENV allvars(BILFON bfon);/*les variables de bfon (params puis varloc)*
 extern void ecrire_bilfon(BILFON bfn);   /* affiche la biliste de fonctions  */
 extern void liberer_bilfon(BILFON bfon); /*libére toute la bilfon */
 /*---------------------programmes -------------------------------------------*/
-void ecrire_prog(BILENV argb,BILFON argbf,Noeud* argno);/* affiche le programme */ //DONE /\ /\
+void ecrire_prog(BILENV argb,BILFON argbf,Noeud* argno);/* affiche le programme */ 
 /* --------------------CONSTANTES -------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable     */
 /*---------------------VARIABLES globales -----------------------------------*/

@@ -64,7 +64,7 @@ BILQUAD normal(BILQUAD bq) {
 }
 
 /* traduit entier (= codop) vers chaine (= nom operation)  */
-char *nomop(int codop) {
+/*char *nomop(int codop) {
     switch(codop) {
         case(I): return("I");
         case(V): return("V");
@@ -112,11 +112,11 @@ char *nomop(int codop) {
         case(call): return("call");
         case(ret): return("ret");
         case(pushl): return("pushl");
-        case(popl): return("popl");*/
-        case(0): return("");                   /* code 0: directive assembleur y86 */
+        case(popl): return("popl");
+        case(0): return("");                   //code 0: directive assembleur y86 
         default: return(NULL);
     };
-}
+}*/
 
 
 /* affiche le quadruplet (pour generer code) avec separateur":" ;

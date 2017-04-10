@@ -6,6 +6,7 @@
 #include <string.h>
 #include "bilquad.h"
 #include "environ.h"
+#include "util.h"
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
 /* QUAD,BILQUAD: definis dans bilquad.h                              */
