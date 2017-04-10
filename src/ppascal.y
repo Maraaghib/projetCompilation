@@ -1,4 +1,56 @@
 %{
+  /*
+  AUTEURS:
+        - Serigne Amsatou SEYE      [Groupe A1]
+        - Ahmad Boissetri Binzagr   [Groupe A4]
+        - Boutet Clement            [Groupe A5]
+        - Audoy François            [Groupe A4]
+
+
+  1) Un analyseur syntaxique
+      - ppascal.l
+      - ppascal.y
+      - util.c
+      - bilquad.c
+      - environ.c
+
+  2)  Un analyseur sémantique du langage Pseudo-Pascal:
+      - Le module asem.c avec la fonction: type *calcul_type(BILENV rho_gb, Noeud *noeud, int ligne);
+      - ppascal.l
+      - ppascal.y
+      - util.c
+      - bilquad.c
+      - environ.c
+
+  3) Un interpréteur du langage Pseudo-Pascal
+      - Le module interp.c
+      - ppascal.l
+      - ppascal.y
+      - util.c
+      - bilquad.c
+      - environ.c
+
+  4) Un traducteur (ou compilateur) de P vers C3A
+      - Le module tradpp2c3a.c avec la focntion: BILQUAD pp2quad(Noeud* noeud)
+      - ppascal.l
+      - ppascal.y
+      - util.c
+      - bilquad.c
+      - environ.c
+
+ 5) Un interpréteur du langage C3A
+     - Le module interppC3A.l
+     - ppascal.l
+     - ppascal.y
+     - util.c
+     - bilquad.c
+     - environ.c
+
+  */
+
+
+
+
   #include <stdio.h>
   #include <stdlib.h>
   #include <stdbool.h>
