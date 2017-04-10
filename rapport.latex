@@ -81,7 +81,7 @@ Pour cette partie, nous avons repris le langage proposé dans le sujet, nous avo
 Lors de l'analyse syntaxique, l'arbre, les différents environnements et la liste de fonctions/procédures se remplissent.
 L'arbre est rempli en priorité à gauche (c'est à dire si un noeud de l'arbre doit avoir un seul fils, il se situera à gauche).
 
-La difficulté principale était de bien gérer les environnements global et local. Pour résoudre ce problème, nous avons utilisé deux variables de type BILENV(Biliste d'environemment): la première variable stocke l'environnement courant (c'est à dire que en dehors des fonctions cet environnement correspond à l'environnement gloabl); la deuxième variable, elle, stocke l'environnement global afin de toujours y avoir accés. 
+La difficulté principale était de bien gérer les environnements global et local. Pour résoudre ce problème, nous avons utilisé deux variables de type BILENV(Biliste d'environemment): la première variable stocke l'environnement courant (c'est à dire que en dehors des fonctions cet environnement correspond à l'environnement gloabl); la deuxième variable, elle, stocke l'environnement global afin de toujours y avoir accés.
 
 \section{Analyse sémantique}
 
@@ -125,4 +125,28 @@ else if (elem->OP == Ret){
 \end{verbatim}
 A la fin, on n'oublie pas d'afficher l'environnement.
 \section{Compilateur PPascal}
+Cette partie consistait à traduire (ou compiler) le code Pseudo-Pascal en Code à Trois Adrsses. Le compilateur se base principalement sur la grammaire du PP dans le fichier ppascal.y, des environnements et d'autres modules que nous avons crées nous-mêmes. Nous n'avons utilisé aucune autre structure que celles déjà existantes. En effet, à l'instar de l'interpréteur, le compilateur utilise quasiment les mêmes environnements et structures et traduit toute instruction déjà interprétée.
+Notre traducteur fonctionne ainsi:
+
+\begin{itemize}
+    \item Pour presque chaque règle dans la grammaire, nous créons un noeud via la fonction:
+    \begin{verbatim}Noeud *create_noeud(Noeud * FilsGauche, Noeud *FilsDroit, char * ETIQ, int Oper, type* type)\end{verbatim}
+    \item On parcourt l'arbre en prefixe pour traduire chaque opérateur et ses fils de manière récursive.
+    \item Nous nous sommes servis aussi de la liste de focntions qui est est une structure contenant deux champs qui pointent respectivement au début et à la fin d'une liste chaînée de focntions. Cette liste est définie comme suit:
+    \begin{verbatim}
+        typedef struct cellfon {
+            char *ID;               /* identificateur de la fonction */
+            BILENV PARAM;           /* parametres formels types  */
+            BILENV VARLOC;          /* variables locales typees */
+            Noeud* CORPS;           /* le corps de la fonction */
+            type* typeno;
+            struct cellfon *SUIV;
+        } *LFON;
+    \end{verbatim}
+    Pour faire la traduction des focntions, nous parcourons la liste et convertissons chaque élément en noeud graâce à la fonction dont son prototype est donnée ci-dessous:
+    \begin{verbatim}Noeud* fonc2noeud(LFON lfon);\end{verbatim}
+\end{itemize}
+Nous nous sommes bien documentés et avons travaillé sérieusement cette partie qui a été très délicate, notamment avec l'utilisation des tableaux et fonctions. Néanmoins, nous avons pas mal de petites erreurs d'éxécution
+qui sont obtenues à la dernière minute et qu'on n'a malheureusement pas le temps de les résoudre.
+
 \end{document}
