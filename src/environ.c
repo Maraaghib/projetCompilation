@@ -123,7 +123,7 @@ int ecrire_env(ENV rho)
 	if(rho->typeno->DIM == 0)
 		if(strcmp(rho->ID,""))
 			printf("variable %s valeur %d \n",rho->ID,rho->VAL);
-	else{
+	else if(rho->typeno->DIM > 0){
 		printf("tableau %s : ", rho->ID);
 		for(int i=0 ; i<rho->typeno->DIM ; i++)
 		printf("t[%d] : %d ",i, rho->typeno->tabval[i]);
