@@ -3,7 +3,7 @@ SRCFLEX = $(SRCBISON:.y=.l)
 CBISON = $(SRCBISON:.y=bison.c)
 HBISON = $(CBISON:.c=.h)
 CFLEX = $(SRCFLEX:.l=flex.c)
-CDEP = util.c environ.c bilquad.c tradpp2c3a.c
+CDEP = util.c environ.c bilquad.c tradpp2c3a.c interp.c asem.c
 ODEP = $(CDEP:.c=.o)
 INCLUDE = -I include/
 EXE = ppascal interppC3A
@@ -25,6 +25,12 @@ util.o : src/util.c include/util.h environ.o
 
 environ.o : src/environ.c include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
+
+asem.o : src/asem.c include/asem.h environ.o util.o
+	gcc -c -std=c99 $(INCLUDE) -I./ -g -o $@ $<
+
+interp.o : src/interp.c include/interp.h util.o
+	gcc -c -std=c99 $(INCLUDE) -I./ -g -o $@ $<
 
 bilquad.o : src/bilquad.c src/util.c include/bilquad.h include/environ.h $(CBISON) 
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<

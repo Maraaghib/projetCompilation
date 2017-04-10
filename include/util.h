@@ -104,6 +104,8 @@ extern void liberer_bilfon(BILFON bfon); /*libére toute la bilfon */
 void ecrire_prog(BILENV argb,BILFON argbf,Noeud* argno);/* affiche le programme */ 
 /* --------------------CONSTANTES -------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable     */
+#define TAILLEADR 1000       /* nbe max adresses dans le tas                     */
+#define TAILLEMEM 10000      /* taille du tas                                    */
 /*---------------------VARIABLES globales -----------------------------------*/
 /* definies au  debut de y.tab.c , non-declarees dans y.tab.h                */
 //extern NOE syntree;          /* arbre syntaxique                  (y.tab.c)*/

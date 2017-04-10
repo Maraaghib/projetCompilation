@@ -84,6 +84,20 @@ L'arbre est rempli en priorité à gauche (c'est à dire si un noeud de l'arbre 
 La difficulté principale était de bien gérer les environnements global et local. Pour résoudre ce problème, nous avons utilisé deux variables de type BILENV(Biliste d'environemment): la première variable stocke l'environnement courant (c'est à dire que en dehors des fonctions cet environnement correspond à l'environnement gloabl); la deuxième variable, elle, stocke l'environnement global afin de toujours y avoir accés.
 
 \section{Analyse sémantique}
+Dans la réalisation de cette partie , nous avons repris et adapté le code réalisé en TP machine (TP 6 et TP 7).\\
+On éxécute l'analyse sémantique pendant que l'on remplit notre arbre. L'analyse sémantique à pour rôle de détecter si il y a des erreurs dans le typage des variables.\\
+Nous n'avons pas réussi à bien coder l'analyse sémantique pour les cas  des tableaux et les cas des fonctions / procedures.
+Les tableaux ne sont pas détectés en tant que tels par l'analyseur.\\
+Donc de ce fait l'analyseur détecte une erreur alors qu'elle n'a pas lieu d'être.\\
+Malgré cela l'analyseur détecte tous les autres types d'erreurs correctement.\\
+
+\section{Interpréteur du language Pseudo-Pascal}
+
+Encore une fois la majorité du code à été repris dans les TP machines.
+On a rencontré des difficultés , lorsque l'on à du faire face à des appels de fonctions\\.
+La principale difficulté des appels de fonctions étant de gérér correctement les environnements.\\
+Quels sont les environnements locaux, globals. Il a également fallu que l'on affecte ces environnements dans certains cas.
+
 
 \section{Interpreteur C3A }
 Dans cette partie,nous avons réutilisé une bonne partie du code de l'interpréteur C3A du mini-projet.

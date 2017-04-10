@@ -50,6 +50,7 @@ int initenv(ENV *prho,char *var, type* typeno)
     }
 }
 /* retourne (arg1 op arg2) */
+
 int eval(int op, int arg1, int arg2)
 
 {int res;switch(op)

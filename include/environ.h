@@ -17,12 +17,10 @@ typedef struct cellenv{
   struct cellenv *SUIV;} *ENV;
 
 
-
-
 /*------------------FONCTIONS ---------------------------------------------------*/
 /*---------------------allocation memoire----------------------------------------*/
 extern char *Idalloc();      /* retourne un tableau de MAXIDENT char             */
-extern ENV Envalloc();       /* retourne un ENV                               */   
+extern ENV Envalloc();       /* retourne un ENV                               */
 /*---------------------environnements--------------------------------------------*/
 extern int initenv(ENV *prho,char *var, type* typeno);/* initialise l'ident var dans *prho*/
 extern int ecrire_env(ENV rho);/* affiche l'environnement                        */
@@ -33,13 +31,14 @@ extern int affectTab(ENV rho,char *var,int val,int index);/* affecte val a l'ind
 extern int valch(ENV rho, char *var); /* valeur de var dans envirnt rho          */
 int valchTab(ENV rho, char* var, int index);
 extern void liberer_env(ENV e); /*Libére la cellule d'environnement */ 
+
 /* ------------------CONSTANTES -------------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable         */
 #define MAXQUAD  5*MAXIDENT  /* long max d'un quadruplet c3a                     */
 /*#define Pl 257
 #define Mo 258
 #define Mu 259
-#define Af 260 
+#define Af 260
 #define Afc 261
 #define Sk 262
 #define Jp 263
