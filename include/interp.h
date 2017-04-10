@@ -2,6 +2,7 @@
 #define __INTERP__H__
 #include "util.h"
 
+extern void affectParam(ENV , BILENV *, Noeud *);
 extern void sem(BILENV *, BILFON *, Noeud *);
 extern int semval(BILENV *, BILFON *, Noeud *);
 void init_memoire();/* initialise le tas: TAS, ADR, TAL    */

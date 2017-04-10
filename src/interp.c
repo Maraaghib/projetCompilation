@@ -59,6 +59,8 @@ void ecrire_memoire(int maxadr, int maxtal, int maxtas){
 int semval(BILENV *env, BILFON *fon, Noeud *noeud){
   if(noeud != NULL){
     ENV pos; LFON fpos, ftmp; BILFON bfon;
+    ENV penv; BILENV benv;
+    Noeud *ntmp;
     int res, taille;
     switch(noeud->codop){
       case True:
@@ -74,26 +76,27 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
       case I:                        /* numeral          */
         return atoi(noeud->ETIQ);
       case T_fon:
-		fpos = rechfon(noeud->ETIQ, (*fon)->debut);
-		bfon = creer_bilfon(fpos);
-		//bfon->debut->PARAM = *env;
-		fpos->VARLOC = concat(*env, fpos->VARLOC);
-		if (fpos != NULL)
-			sem(&fpos->VARLOC, &bfon, fpos->CORPS);
+        fpos = rechfon(noeud->ETIQ, (*fon)->debut);
+        bfon = creer_bilfon(fpos);
+        affectParam(fpos->PARAM->debut, env, noeud->gauche);
+        if (fpos != NULL)
+          sem(&fpos->VARLOC, &bfon, fpos->CORPS);
+        pos = rech(fpos->ID, fpos->VARLOC->debut);
+        return pos->VAL;
+        break;
       case V:                         /* variable        */
 				if ((*fon)->debut != NULL){
 					pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->VARLOC->debut);
 					if (pos == NULL)
 						pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->PARAM->debut);
-						
           printf(BLUE "CAS FONCTION %s : %p\n" RESET,noeud->ETIQ, pos);
         } else {
 					pos = rech(noeud->ETIQ, (*env)->debut);
           printf(BLUE "CAS AUTRE\n" RESET);
         }
         if (pos != NULL)
-			return pos->VAL;          /* env(var)     */
-		return EXIT_FAILURE;
+          return pos->VAL;          /* env(var)     */
+        return EXIT_FAILURE;
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
         ADR[padrl] = ptasl;
@@ -125,14 +128,14 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
           //printf("rhs vaut %d \n", rhs);
           printf(BLUE "Af : %p\n" RESET, (*fon)->debut);
           if (noeud->droit->codop == T_fon){
-			fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
-			if (fpos != NULL)
-				affectb(*env, fpos->VARLOC, lhs, rhs);
-			} else
-				affect((*env)->debut, lhs, rhs);
-          printf(MAGENTA);
-          ecrire_bilfon(*fon);
-          printf(RESET"\n");
+            fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
+            if (fpos != NULL)
+              affectb(*env, fpos->VARLOC, lhs, rhs);
+            } else
+              affect((*env)->debut, lhs, rhs);
+            printf(MAGENTA);
+            ecrire_bilfon(*fon);
+            printf(RESET"\n");
         } else {
           printf(BLUE "AF : %p\n" RESET, (*fon)->debut);
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
@@ -160,4 +163,37 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
     }
   }
   return;
+}
+
+void affectParam(ENV param, BILENV *env, Noeud *noeud){
+  if (noeud == NULL)
+    return ;
+  BILENV penv;
+  ENV suiv = param;
+  ENV pos;
+  if (param != NULL){
+    if (noeud->codop == V){
+      pos = rech(noeud->ETIQ, (*env)->debut);
+      if (pos != NULL){
+        int rhs = pos->VAL;
+        printf("RHS VAUT : %s\n", noeud->ETIQ);
+        param->VAL = rhs;
+        suiv = param->SUIV;
+      }
+    } else if (noeud->codop == True){
+      param->VAL = true;
+      suiv = param->SUIV;
+    } else if (noeud->codop == False){
+      param->VAL = false;
+      suiv = param->SUIV;
+    } else if (noeud->codop == I){
+      param->VAL = atoi(noeud->ETIQ);
+    }
+  }
+  affectParam(suiv, env, noeud->gauche);
+  suiv = param->SUIV;
+  affectParam(suiv, env, noeud->droit);
+
+  ecrire_env(param);
+  return ;
 }
