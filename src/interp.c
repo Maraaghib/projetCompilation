@@ -173,21 +173,26 @@ void affectParam(ENV param, BILENV *env, Noeud *noeud){
   ENV suiv = param;
   ENV pos;
   if (param != NULL){
-    if (noeud->codop == V){
-      pos = rech(noeud->ETIQ, (*env)->debut);
-      if (pos != NULL){
-        int rhs = pos->VAL;
-        param->VAL = rhs;
+    switch (noeud->codop) {
+      case V:
+        pos = rech(noeud->ETIQ, (*env)->debut);
+        if (pos != NULL){
+          int rhs = pos->VAL;
+          param->VAL = rhs;
+          suiv = param->SUIV;
+        }
+        break;
+      case True:
+        param->VAL = true;
         suiv = param->SUIV;
-      }
-    } else if (noeud->codop == True){
-      param->VAL = true;
-      suiv = param->SUIV;
-    } else if (noeud->codop == False){
-      param->VAL = false;
-      suiv = param->SUIV;
-    } else if (noeud->codop == I){
-      param->VAL = atoi(noeud->ETIQ);
+        break;
+      case False:
+        param->VAL = false;
+        suiv = param->SUIV;
+        break;
+      case I:
+        param->VAL = atoi(noeud->ETIQ);
+        break;
     }
   }
   affectParam(suiv, env, noeud->gauche);
