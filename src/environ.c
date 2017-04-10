@@ -153,6 +153,7 @@ int valchTab(ENV rho, char* var, int index){
 
 void liberer_env(ENV e){
   free(e->ID);
+  free(e->typeno);
   e->SUIV = NULL;
   free(e);
 }
