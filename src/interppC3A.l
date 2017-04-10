@@ -89,36 +89,40 @@ return -1;}
 int main(int argc, char *argv[]) {
     yylex();
     ENV env= Envalloc(); /* env local*/
-    ENV G ; /* env global*/
+    ENV G =env; /* env global*/
     ENV L, P;
     QUAD elem = list.debut;
-    int fin =0;
-    int local =0;
-    QUAD retaddr;//"adresse" de retour : quadruplet qui suit un call
-    char* retvar; //variable qui stocke la valeur de retour
+    //int varfin =0;
+    int varloc =0;
+    QUAD retaddr=NULL;//"adresse" de retour : quadruplet qui suit un call
+    char* retvar=NULL; //variable qui stocke la valeur de retour
     while (elem != NULL) {
         if (elem->OP == Afc) {
-	    //if(local)
-            	initenv(&env, elem->RES,creer_type(0,0));
+	    if(varloc)
+		initenv(&L , elem->RES, creer_type(0,T_int));
+            initenv(&env, elem->RES,creer_type(0,T_int));
             affect(env, elem->RES, atoi(elem->ARG1));
             elem = elem->SUIV;
         }            
         /*Pl Mu Mo Not And Or Lt Eq creer la var res dans e (si elle existe elle ne sera pas créée)
 					ensuite recuperer les valeur des arguments pour faire les opérations dessus*/
         else if (elem->OP == Pl || elem->OP == Mu || elem->OP == Mo || elem->OP == Not || elem->OP == And || elem->OP == Or || elem->OP == Lt || elem->OP == Eq) {
-            initenv(&env, elem->RES,creer_type(0,0));
-            initenv(&env, elem->ARG1,creer_type(0,0));
-            initenv(&env, elem->ARG2,creer_type(0,0));
+            if(varloc)
+		initenv(&L , elem->RES, creer_type(0,T_int));
+	    initenv(&env, elem->RES,creer_type(0,T_int));
+            initenv(&env, elem->ARG1,creer_type(0,T_int));
+            initenv(&env, elem->ARG2,creer_type(0,T_int));
             int res = eval(elem->OP, valch(env, elem->ARG1), valch(env, elem->ARG2));
             affect(env, elem->RES, res);
             elem = elem->SUIV;
         }            
         /*recuperer l'environnement associé et affecté la valeur*/
         else if (elem->OP == Af) {
-	  //if(local){ 	
-            initenv(&env, elem->ARG1,creer_type(0,0));
-            initenv(&env, elem->ARG2,creer_type(0,0));
-          /*}*/  affect(env, elem->ARG1, valch(env, elem->ARG2));
+	  if(varloc)
+		initenv(&L , elem->RES, creer_type(0,T_int));	
+            initenv(&env, elem->ARG1,creer_type(0,T_int));
+            initenv(&env, elem->ARG2,creer_type(0,T_int));
+            affect(env, elem->ARG1, valch(env, elem->ARG2));
             elem = elem->SUIV;
         }            
         else if (elem->OP == Jp) {
@@ -152,27 +156,31 @@ int main(int argc, char *argv[]) {
             affectTab(env,elem->ARG1,valch(env,elem->RES),atoi(elem->ARG2));
             elem = elem->SUIV;
             break; 
-        }/* else if (elem->OP == Param){
-            initenv(&P, elem->ARG1, creer_type(0,0));
+        } else if (elem->OP == Param){
+            initenv(&P, elem->ARG1, creer_type(0,T_int));
             affect(P, elem->ARG1, valch(G, elem->ARG2));
             elem = elem->SUIV;
             break;
          } else if (elem->OP == Call){
-		envcpy(*P, L);
-                destructEnv(&P);
-                local = 1;
-                retvar = cur->RES;
-                retaddr = cur->SUIV;
-                next = rechbq(cur->ARG1, bilist);
+		L = copier_env(env);
+                liberer_env(P);
+                varloc = 1;
+                retvar = elem->RES;
+                retaddr = elem->SUIV;
+                elem = rechbq(elem->ARG1,list);
             break;
-        }  */else if (elem->OP == Ret){
-		     printf("break\n");
+        }  else if (elem->OP == Ret){
+		     affect(G, retvar, valch(L, elem->ARG1));
+                                varloc = 0;
+                                 elem = retaddr;
 		     break;
         }
     }
 
-    ecrire_env(env);
+    ecrire_env(G);
 
 
 }
+
+
 
