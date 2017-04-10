@@ -8,6 +8,7 @@
   #include "environ.h"
   #include "interp.h"
   #include "bilquad.h"
+  #include "asem.h"
 
   int yywrap();
   int yylex();
@@ -24,7 +25,7 @@
   char* fct_cour;
   BILENV param_cour;
   int type_fct; // vaut 0 pour les procedures
-
+  int ligcour = 1; // ligne courante
 
 
   int i =0;
@@ -77,14 +78,22 @@ MP: L_vart LD C {
  }
 
 
-E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
-| E Mo E {$$ = create_noeud($1,$3,"Mo",Mo,creer_type(0,T_int));}
-| E Mu E {$$ = create_noeud($1,$3,"Mu",Mu,creer_type(0,T_int));}
-| E Or E {$$ = create_noeud($1,$3,"Or",Or,creer_type(0,T_bool));}
-| E Lt E {$$ = create_noeud($1,$3,"Lt",Lt,creer_type(0,T_bool));}
-| E Eq E {$$ = create_noeud($1,$3,"Eq",Eq,creer_type(0,T_bool));}
-| E And E {$$ = create_noeud($1,$3,"And",And,creer_type(0,T_bool));}
-| Not E  {$$ = create_noeud($2,NULL,"Not",Not,creer_type(0,T_bool));}
+E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));
+            calcul_type(env_global, $$, ligcour);}
+| E Mo E {$$ = create_noeud($1,$3,"Mo",Mo,creer_type(0,T_int));
+            calcul_type(env_global, $$, ligcour);}
+| E Mu E {$$ = create_noeud($1,$3,"Mu",Mu,creer_type(0,T_int));
+            calcul_type(env_global, $$, ligcour);}
+| E Or E {$$ = create_noeud($1,$3,"Or",Or,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
+| E Lt E {$$ = create_noeud($1,$3,"Lt",Lt,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
+| E Eq E {$$ = create_noeud($1,$3,"Eq",Eq,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
+| E And E {$$ = create_noeud($1,$3,"And",And,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
+| Not E  {$$ = create_noeud($2,NULL,"Not",Not,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
 | PO E PF {$$ = $2;}
 | I {$$ = create_noeud(NULL,NULL,$1,I,creer_type(0,T_int));} // Hamza: J'ai remplacé le 4ème argument (T_int) par I. Sinon, le compilateur ne marche pas
 | V {ENV pos = rech2($1,env_cour->debut,env_global->debut);
@@ -92,10 +101,12 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
      yyerror("Variable non déclarée");
      exit(EXIT_FAILURE);
      }
-   $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);} // Hamza: J'ai remplacé le 4ème argument (pos->typeno->TYPEF) par V. Sinon, le compilateur ne marche pas
-
-| True {$$ = create_noeud(NULL,NULL,"true",True,creer_type(0,T_bool));}
-| False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));}
+   $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno); // Hamza: J'ai remplacé le 4ème argument (pos->typeno->TYPEF) par V. Sinon, le compilateur ne marche pas
+   calcul_type(env_global, $$, ligcour);}
+| True {$$ = create_noeud(NULL,NULL,"true",True,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
+| False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));
+            calcul_type(env_global, $$, ligcour);}
 | NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = NULL;}
 
 | V PO L_args PF /*V ( L_args )*/{
@@ -117,15 +128,20 @@ Et: V CO E CF /* V [ E ] */{
    }
    Noeud *n = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);
    $$ = create_noeud(n, $3, $1, Ind, n->typeno) ;
+   calcul_type(env_global, n, ligcour);
+   calcul_type(env_global, $$, ligcour);
  }
   | Et CO E CF /*Et [ E ] */{
     $$ = create_noeud($1, $3, $1->ETIQ, Ind, $1->typeno) ;
+    calcul_type(env_global, $$, ligcour);
   }
   ;
 
-C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
+C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));
+               calcul_type(env_global, $$, ligcour);}
 
-| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));}
+| Et Af E {$$ = create_noeud($1,$3,"Af",Af,creer_type(0,T_com));
+               calcul_type(env_global, $$, ligcour);}
 
 | V Af E {ENV pos = rech2($1,env_cour->debut,env_global->debut);
    if(pos == NULL){
@@ -133,6 +149,7 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
      exit(EXIT_FAILURE);
    }
    $$ = create_noeud(create_noeud(NULL,NULL,pos->ID,V,pos->typeno),$3,"AF",Af,creer_type(0,T_com));
+   calcul_type(env_global, $$, ligcour);
  }
 | Sk {$$ = create_noeud(NULL,NULL,"Sk",Sk,creer_type(0,T_com));}
 
@@ -140,10 +157,12 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 
 | If E Th C El C {
   $$ = create_noeud($2, create_noeud($4, $6, "", 0, creer_type(0, T_com)), "IfThEl", If, creer_type(0, T_com));
+  calcul_type(env_global, $$, ligcour);
  }
 
 | Wh E Do C {
   $$ = create_noeud($2,create_noeud($4,NULL,"Do",Do,creer_type(0,T_com)),"Wh",Wh,creer_type(0,T_com));
+  calcul_type(env_global, $$, ligcour);
  }
 
 | V PO L_args PF /*V ( L_args )*/{

@@ -320,7 +320,7 @@ BILFON concatfn(BILFON b1, BILFON b2){
 void ecrire_bilfon(BILFON bfn){
   if(bfn != NULL){
     LFON curseur = bfn->debut;
-    
+
     while(curseur != NULL){
       ecrire_fon(curseur);
       curseur = curseur->SUIV;

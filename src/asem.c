@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "arbre.h"
-#include "ppascalbison.h"
+#include "asem.h"
+#include "environ.h"
 /*------------------FONCTIONS ---------------------------------------------------*/
 /*------------------types--------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ void typ_error(char *mess, int ligne){
 /* suppose corrects les types des fils                                         */
 /* envoie message d'erreur si mal type a la racine et fils bien types          */
 /* renvoie T_err si l'arbre est mal-type                                       */
-type calcul_type(BILENVTY rho_gb, Noeud *noeud, int ligne){
+type calcul_type(BILENV rho_gb, Noeud *noeud, int ligne){
   type tp;
   tp = creer_type(0,T_bot); /* type par defaut */
   if(noeud != NULL){
