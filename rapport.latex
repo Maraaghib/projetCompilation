@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+\begin{document}
+\tableofcontents
+\newpage
+\section{Analyse syntaxique}
+Pour cette partie, nous avons juste repris le langage proposé dans le sujet, nous avons juste rajouté des indiations a bison à propos de la façon de traité certaine instructions (telle que "Se" et "WhDo" et "IfThEl").
+
+
+\section{Analyse sémantique}
+
+\section{Interpreteur C3A }
+
+\section{Compilateur PPascal}
+\end{document}
