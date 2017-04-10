@@ -31,12 +31,13 @@ bilquad.o : src/bilquad.c src/util.c include/bilquad.h include/environ.h $(CBISO
 
 tradpp2c3a.o : src/tradpp2c3a.c include/bilquad.h include/util.h include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
-	
+
 interppC3A.c: src/interppC3A.l include/environ.h include/bilquad.h include/util.h
 	flex -o $@ $< 
-	
+
 interppC3A: interppC3A.c bilquad.o environ.o util.o
 	$(CC) -std=c99 -Wall -o $@ $^ -lfl
 
 clean:
-	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP)
+	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP) interppC3A.c
+	rm -f rapport.aux rapport.log rapport.out rapport.toc

@@ -4,7 +4,11 @@
 \usepackage[T1]{fontenc}
 \usepackage{hyperref}
 
+\title{Rapport du projet de compilation L3}
+\author{Audoy Fran\c cois \\ Boutet Clement \\ Ahmad Boissetri Binzagr \\ Serigne Amsatou SEYE}
+
 \begin{document}
+\maketitle
 \tableofcontents
 \newpage
 \section{Les fonctions utiles et les structures }
@@ -65,18 +69,19 @@ Cette structure permet de stocker les types des fonctions et des variables, le c
 \begin{verbatim}
 typedef struct stype{
   int DIM;   /* dimension ; vaut 0 ssi type de base                           */
-  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */\
+  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */
   int *tabval; /* necessaire pour la gestion des tableaux*/
 }type;
 
 \end{verbatim}
 
 \section{Analyse syntaxique}
-Pour cette partie, nous avons juste repris le langage proposé dans le sujet, nous avons juste rajouté des indiations a bison à propos de la façon de traité certaine instructions (telle que "Se" et "WhDo" et "IfThEl").
+Pour cette partie, nous avons juste repris le langage proposé dans le sujet, nous avons juste rajouté des indiations à bison à propos de la façon de traité certaines instructions (telle que "Se" et "WhDo" et "IfThEl").
 
-Lors de l'analyse syntaxique, l'arbre et les différents environnement et la liste de fonctions/procédures se remplient.
+Lors de l'analyse syntaxique, l'arbre, les différents environnements et la liste de fonctions/procédures se remplient.
 L'arbre est remplie en priorité à gauche (c.à.d. si un noeud de l'arbre doit avoir un seul fils il se situera à gauche).
 
+La difficulté principal était de bien gérer les environnement globale et local. Pour résoudre ce problème nous avons utilisé deux variables de type BILENV(Biliste d'environemment) une varibles qui stocke l'environnement courant c'est à dire que en dehors des fonctions cette environnement correspond à l'environnement gloable, et la deuxiéme variable qui elle stocke l'environnement globale afin de pouvoir y toujours y avoir accés. 
 
 \section{Analyse sémantique}
 
@@ -118,6 +123,6 @@ else if (elem->OP == Ret){
 		     break;
         }
 \end{verbatim}
-A la fin on oubliera pas d'afficher l'environnement.
+A la fin on oublie pas d'afficher l'environnement.
 \section{Compilateur PPascal}
 \end{document}
