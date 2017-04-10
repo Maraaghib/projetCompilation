@@ -5,7 +5,7 @@ interppC3A
 ppascalbison.c
 ppascalbison.h
 ppascalflex.c
-src/interppC3A.c
+interppC3A.c
 
 
 # LEs fichiers générés par Latex
@@ -51,7 +51,7 @@ src/interppC3A.c
 *.dSYM/
 *.su
 
-#truc deguelasse d emacs 
+#truc deguelasse d emacs
 *~
 src/*.*~
 include/*.*~
