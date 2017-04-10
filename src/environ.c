@@ -49,7 +49,9 @@ int initenv(ENV *prho,char *var, type* typeno)
 }
 /* retourne (arg1 op arg2) */
 int eval(int op, int arg1, int arg2)
+
 {int res;switch(op)
+
     {case Pl:
 	     return(arg1 + arg2);
     case Mo:
@@ -60,10 +62,10 @@ int eval(int op, int arg1, int arg2)
       return (arg1 & arg2);
     case Or:
       return (arg1 | arg2);
-    case Lt: case Eq:
-      return res = (arg1 < arg2) ? 1 : 0;  
-    case Not:
-      return(-arg1);
+    case Lt:
+      return (arg1 < arg2);
+    case Eq:
+      return (arg1 == arg2);
     default:
       return(0);
     }

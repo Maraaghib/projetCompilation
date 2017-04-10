@@ -8,6 +8,8 @@
 #include "util.h"
 #include "environ.h"
 #include "../ppascalbison.h"
+
+char *strdup(const char *s);
 /* iimp.tab.h APRES arbre,h, sinon le type NOE est inconnu de gcc    */
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
@@ -161,6 +163,8 @@ void ecrire_sep_bilquad(BILQUAD bq) {
 
 /* traduit une (expression ou commande) en biliste de quadruplets */
 /* met a jour l'environnement (var globale)                      */
+// Faire une fonction qui traduit un Environnement (BILENV.debut) en BILQUAD
+// Faire une focntion qui traduit un
 BILQUAD pp2quad(Noeud* ec) {
     extern ENV envrnt;
     BILQUAD bilq1, bilq2, bilexp, bilres; /* trad de: fg, fd, expression, resultat */
@@ -169,6 +173,7 @@ BILQUAD pp2quad(Noeud* ec) {
     char *narg1 = NULL;
     char *narg2 = NULL;
     QUAD nquad;      /* nouveau quadruplet   */
+    int nparam = 0;
     assert(ec != NULL);
     // printf("\n*************** | DANS PP2QUAD() | ***************\n\n");
     // printf("Noeud: %p\n", ec);
@@ -176,7 +181,7 @@ BILQUAD pp2quad(Noeud* ec) {
     switch(ec->codop) {
       // printf("Dans switch !\n");
         /* CAS: ec est une EXPRESSION */
-        case Pl: case Mo: case Mu: case And: case Or:                 /* operation binaire */
+        case Pl: case Mo: case Mu: case And: case Or: case Lt: case Eq:                /* operation binaire */
             /* les ingredients */
             netiq = gensym("ET");
             newop = ec->codop;
@@ -264,7 +269,10 @@ BILQUAD pp2quad(Noeud* ec) {
             break;
         /* CAS: ec est une COMMANDE */
         case Mp:
-            bilq1 = pp2quad(ec->gauche);
+            // Pourquoi pas faire une boucle pour les focntions. Après chaque toure de boucle, faire les Ret ou Call (je ne sais pas moi) ...
+            bilq1 = pp2quad(ec->gauche); // Pour les fonctions
+                // printf("Je suis la\n");
+            bilq2 = pp2quad(ec->droit); // Pour le programme principal
             /* les ingredients */
             netiq = gensym("ET");
             newop = St;
@@ -273,8 +281,10 @@ BILQUAD pp2quad(Noeud* ec) {
             nres = NULL;
             /* le quadruplet final: stop  (pas d'adresse de resultat) */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
-            bilq2 = creer_bilquad(nquad);
-            bilres = concatq(bilq1, bilq2);
+            bilres = creer_bilquad(nquad);
+
+            bilq2 = concatq(bilq1, bilq2);
+            bilres = concatq(bilq2, bilres);
             break;
         case Af:
             /* les ingredients */
@@ -373,6 +383,63 @@ BILQUAD pp2quad(Noeud* ec) {
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             /* nouvelle biliste */
             bilres = concatq(bilres, creer_bilquad(nquad));
+            break;
+        case T_fon:
+            bilq1 = pp2quad(ec->gauche);
+            netiq = gensym("ET");
+            newop = Call;
+            narg1 = strdup(ec->ETIQ);
+            narg2 = Idalloc();
+            sprintf(narg2, "%d", nparam);
+            nres = NULL;
+
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            /* nouvelle biliste */
+            bilres = concatq(bilq1, creer_bilquad(nquad));
+
+            // printf("J'appelle une fonction !\n");
+            // printf("ETIQ = %s\n", bilq1.fin->ETIQ);
+            // printf("OP = %s\n", bilq1.fin->OP);
+            // printf("ARG1 = %s\n", bilq1.fin->ARG1);
+            // printf("ARG2 = %s\n", bilq1.fin->ARG2);
+            // printf("RES = %s\n", bilq1.fin->RES);
+            break;
+        case Virgule:
+            printf("Param fonction !\n");
+            if (ec->gauche != NULL) {
+                bilq1 = pp2quad(ec->gauche);
+                nparam ++;
+
+                netiq = gensym("ET");
+                newop = Param;
+                narg1 = strdup(ec->gauche->ETIQ);
+                narg2 = strdup("0");
+                nres = NULL;
+
+                nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            }
+            /* nouvelle biliste */
+            // bilq1 = concatq(bilq1, creer_bilquad(nquad));
+
+            if (ec->droit != NULL && ec->gauche) {
+                bilq2 = pp2quad(ec->droit);
+
+                netiq = gensym("ET");
+                newop = Param;
+                narg1 = strdup(ec->gauche->ETIQ);
+                narg2 = strdup("0");
+                nres = NULL;
+
+                nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+                /* nouvelle biliste */
+                bilq2 = concatq(bilq2, creer_bilquad(nquad));
+                bilres = concatq(bilq1, bilq2);
+            }
+            else {
+                bilres = concatq(bilq1, creer_bilquad(nquad));
+            }
+
+
             break;
         default: break;
     };

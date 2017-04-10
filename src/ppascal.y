@@ -70,7 +70,8 @@
 %%
 MP: L_vart LD C {
                   env_global = $1;
-                  syntree = create_noeud($3, NULL, "Mp", Mp, creer_type(0,T_com));
+                  syntree = create_noeud($2->debut->CORPS, $3, "Mp", Mp, creer_type(0,T_com));
+                  /* syntree = create_noeud($1, create_noeud(create_noeud($2, NULL, "L_D", L_D, creer_type(0,0)), create_noeud($3, creer_type(0, 0), "", 0, creer_type(0,T_com)), "", 0, creer_type(0, 0)), "Mp", Mp, creer_type(0,T_com)); */
                   //ecrire_bilenv($1);
                   //print_tree_ter($3); printf("\n");
                   ecrire_prog($1,$2,$3);
@@ -99,7 +100,7 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
 | False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));}
 | NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = NULL;}
 
-| V PO L_args PF /*V ( L_args )*/{
+| V PO L_args PF /* "X :=" V ( L_args ): Quand on appelle une focntion qui doit renvoyer une valeur*/{char* s = strdup("");sprintf(s, "Ap %s", $1);printf("ONE : %s\n", s);
   LFON pos = rechfon($1,liste_fct->debut);
   if(pos == NULL){
     yyerror("Fonction/Procedure non déclarée");
@@ -140,14 +141,24 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 | AO C AF {$$ = $2;} //{ C }
 
 | If E Th C El C {
-  $$ = create_noeud($2, create_noeud($4, $6, "", 0, creer_type(0, T_com)), "IfThEl", If, creer_type(0, T_com));
+  /*$$ = create_noeud($2,create_noeud($4,create_noeud($6,NULL,"El",El,creer_type(0,T_com)),"Th",Th,creer_type(0,T_com)),"If",If,creer_type(0,T_com));*/
+    $$ = create_noeud($2, create_noeud($4, $6, "", 0, creer_type(0, T_com)), "IfThEl", If, creer_type(0, T_com));
+    $$=Nalloc();
+    $$->gauche=$2;         /* booleen */
+    $$->droit=Nalloc();   /* alternative */
+    $$->droit->ETIQ="";   /* champ inutile */
+    $$->droit->gauche=$4;     /* branche true */
+    $$->droit->droit=$6;     /* branche false */
+    $$->ETIQ=malloc(2);
+    $$->ETIQ = strdup("IfThEl");
+    $$->codop=If;
  }
 
 | Wh E Do C {
   $$ = create_noeud($2,create_noeud($4,NULL,"Do",Do,creer_type(0,T_com)),"Wh",Wh,creer_type(0,T_com));
  }
 
-| V PO L_args PF /*V ( L_args )*/{
+| V PO L_args PF /*V ( L_args ) : Quand on appelle une procédure qiu ne renvoie rien (Pas d'affectation du resultat à une variable)*/{printf("TWO : %s\n", $1);
   LFON pos = rechfon($1,liste_fct->debut);
   if(pos == NULL){
     yyerror("Fonction/Procedure non déclarée");
@@ -162,15 +173,17 @@ L_args: %empty {$$ = NULL;}
 | L_argsnn {$$ = $1;}
 ;
 
-L_argsnn: E {$$ = $1;}
-| E Virgule L_argsnn {$$ = create_noeud($1,$3,"Virgule",Virgule,creer_type(0,T_com)); }
+L_argsnn: E {$$ = create_noeud($1,NULL,"ArgAp",Virgule,creer_type(0,T_com));}
+/* foo (expression, expression)  | Appel d'une fonction */
+| E Virgule L_argsnn {printf("UN\n");$$ = create_noeud($1,$3,"ArgAp",Virgule,creer_type(0,T_com)); }
 ;
 
 L_argt: %empty {$$ = NULL;}
 | L_argtnn {$$ = $1;}
 
 L_argtnn: Argt {$$ = $1;}
-| L_argtnn Virgule Argt {$$ = concat($1,$3);}
+/* foo(variable1: type1 , variable2: type2) | Entête d'une fonction */
+| L_argtnn Virgule Argt {printf("DEUX\n");$$ = concat($1,$3);}
 ;
 
 Argt: V DPoints TP {
