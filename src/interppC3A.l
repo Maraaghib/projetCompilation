@@ -88,11 +88,18 @@ return -1;}
 
 int main(int argc, char *argv[]) {
     yylex();
-    ENV env = Envalloc();
+    ENV env= Envalloc(); /* env local*/
+    ENV G ; /* env global*/
+    ENV L, P;
     QUAD elem = list.debut;
+    int fin =0;
+    int local =0;
+    QUAD retaddr;//"adresse" de retour : quadruplet qui suit un call
+    char* retvar; //variable qui stocke la valeur de retour
     while (elem != NULL) {
         if (elem->OP == Afc) {
-            initenv(&env, elem->RES,creer_type(0,0));
+	    //if(local)
+            	initenv(&env, elem->RES,creer_type(0,0));
             affect(env, elem->RES, atoi(elem->ARG1));
             elem = elem->SUIV;
         }            
@@ -108,9 +115,10 @@ int main(int argc, char *argv[]) {
         }            
         /*recuperer l'environnement associé et affecté la valeur*/
         else if (elem->OP == Af) {
+	  //if(local){ 	
             initenv(&env, elem->ARG1,creer_type(0,0));
             initenv(&env, elem->ARG2,creer_type(0,0));
-            affect(env, elem->ARG1, valch(env, elem->ARG2));
+          /*}*/  affect(env, elem->ARG1, valch(env, elem->ARG2));
             elem = elem->SUIV;
         }            
         else if (elem->OP == Jp) {
@@ -144,14 +152,20 @@ int main(int argc, char *argv[]) {
             affectTab(env,elem->ARG1,valch(env,elem->RES),atoi(elem->ARG2));
             elem = elem->SUIV;
             break; 
-        } /*else if (elem->OP == Param){
+        }/* else if (elem->OP == Param){
             initenv(&P, elem->ARG1, creer_type(0,0));
             affect(P, elem->ARG1, valch(G, elem->ARG2));
             elem = elem->SUIV;
             break;
-         }*/ else if (elem->OP == Call){
+         } else if (elem->OP == Call){
+		envcpy(*P, L);
+                destructEnv(&P);
+                local = 1;
+                retvar = cur->RES;
+                retaddr = cur->SUIV;
+                next = rechbq(cur->ARG1, bilist);
             break;
-        }  else if (elem->OP == Ret){
+        }  */else if (elem->OP == Ret){
 		     printf("break\n");
 		     break;
         }

@@ -14,11 +14,13 @@ char *Idalloc()
 ENV Envalloc()
 {
   ENV e = (ENV)malloc(sizeof(struct cellenv));
+  e->typeno = (type*)malloc(sizeof(type));
   e->ID = Idalloc();
   e->VAL = 0;
   e->SUIV = NULL;
-  e->typeno->DIM;
-  e->typeno->TYPEF; 
+  e->typeno->DIM=0;
+  e->typeno->TYPEF=0;
+  e->typeno->tabval = NULL;
   return e;
 }
 
@@ -116,18 +118,19 @@ int ecrire_env(ENV rho)
 { if (rho==NULL)
     {printf("fin d' environnement \n");
       return(EXIT_SUCCESS);}
-      int bin =rho->typeno->DIM;printf("%d",bin);
- /* else {if(rho->typeno->DIM == 0) //entier
+  else
+    {
+	if(rho->typeno->DIM == 0)
+		if(strcmp(rho->ID,""))
 			printf("variable %s valeur %d \n",rho->ID,rho->VAL);
-		else{
-		// tableaux
-		printf("tableaux %s : \n",rho->ID);
-		for(int i=0;i<rho->typeno->DIM;i++)
-			printf("T[%d] : %d \n",i,rho->typeno->tabval[i]);
-		}
-      ecrire_env(rho->SUIV);
-      return(EXIT_SUCCESS);
-    };*/
+	else{
+		printf("tableau %s : ", rho->ID);
+		for(int i=0 ; i<rho->typeno->DIM ; i++)
+		printf("t[%d] : %d ",i, rho->typeno->tabval[i]);
+	}	
+	ecrire_env(rho->SUIV); 
+	return(EXIT_SUCCESS);
+    };
 }
 
 /* valeur de var dans rho */
