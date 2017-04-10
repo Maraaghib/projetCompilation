@@ -1,9 +1,8 @@
 
-
 %{
-#include "bilquad.h"
-#include "environ.h"
-#include "../ppascalbison.h"
+#include "include/bilquad.h"
+#include "include/environ.h"
+#include "ppascalbison.h"
 #include <string.h>
 char *strdup(const char *s);
 
@@ -45,7 +44,17 @@ int fileno();
                                 op = Jz;   
                             } else if (strncmp("St",yytext+1,2)==0) { 
                                 op = St;   
-                            }              
+                            } else if (strncmp("Ind",yytext+1,2)==0) { 
+                                op = NewAr;   
+                            } else if (strncmp("Call",yytext+1,2)==0) { 
+                                op = Call;   
+                            } else if (strncmp("Ret",yytext+1,2)==0) { 
+                                op = Ret;   
+                            } else if (strncmp("AfInd",yytext+1,2)==0) { 
+                                op = AfInd;   
+                            } else if (strncmp("Param",yytext+1,2)==0) { 
+                                op = Param;   
+                            }             
                         }
 <Arg1>:[A-Za-z0-9]*      {
                             BEGIN Arg2;
@@ -79,78 +88,77 @@ return -1;}
 
 int main(int argc, char *argv[]) {
     yylex();
-    BILENV benv = bilenv_vide();
     ENV env = Envalloc();
     QUAD elem = list.debut;
-    char* dest;QUAD curseur;
     while (elem != NULL) {
-		switch(elem->OP){
-			case Afc  :
-				initenv(&env,elem->RES,env->typeno);
-				affect(env, elem->RES, atoi(elem->ARG1));
-				elem = elem->SUIV;
-				break;         
-			case Mu :
-			case Mo :
-			case Pl :
-			case And :
-			case Or :
-			case Lt :
-			case Eq :
-			case Not:
-				 /*creer la var res dans e (si elle existe elle ne sera pas créée)
-					ensuite recuperer les valeur des arguments pour faire les opérations dessus*/	
-				initenv(&env,elem->RES,env->typeno);
-				initenv(&env,elem->ARG1,env->typeno);
-				initenv(&env,elem->ARG2,env->typeno);
-				int res = eval(elem->OP, valch(env, elem->ARG1), valch(env, elem->ARG2));
-				affect(env, elem->RES, res);
-				elem = elem->SUIV;
-				break;            
-			case Af : 
-				/*recuperer l'environnement associé et affecté la valeur*/
-				initenv(&env,elem->ARG1,env->typeno);
-				initenv(&env,elem->ARG2,env->typeno);
-				affect(env, elem->ARG1, valch(env, elem->ARG2));
-				elem = elem->SUIV;
-				break;          
-			case Jp : 
-				elem=rechbq(elem->RES, list);
-				break;            
-			case Jz :
-				curseur = list.debut;
-				dest = strdup(elem->RES);
-				if(valch(env, elem->ARG1) == 0){
-					while (strcmp(curseur->ETIQ,dest) != 0){
-						curseur = curseur->SUIV;
-					}
-					elem=curseur;
-				}else{
-					elem = elem->SUIV;
-				}
-				break;
-			case St :
-				break;
-			case Sk :		
-				elem = elem->SUIV;
-				break;
-				
-			case NewAr :
-			
-			case T_ar :
-			
-			case T_bool :
-			
-			case T_int :
-			
-			case Def :
-			
-				
-			default :
-			        break;
-			}
-		}
-    ecrire_bilenv(benv);
-	ecrire_env(env);
+        if (elem->OP == Afc) {
+            initenv(&env, elem->RES,creer_type(0,0));
+            affect(env, elem->RES, atoi(elem->ARG1));
+            elem = elem->SUIV;
+        }            
+        /*Pl Mu Mo Not And Or Lt Eq creer la var res dans e (si elle existe elle ne sera pas créée)
+					ensuite recuperer les valeur des arguments pour faire les opérations dessus*/
+        else if (elem->OP == Pl || elem->OP == Mu || elem->OP == Mo || elem->OP == Not || elem->OP == And || elem->OP == Or || elem->OP == Lt || elem->OP == Eq) {
+            initenv(&env, elem->RES,creer_type(0,0));
+            initenv(&env, elem->ARG1,creer_type(0,0));
+            initenv(&env, elem->ARG2,creer_type(0,0));
+            int res = eval(elem->OP, valch(env, elem->ARG1), valch(env, elem->ARG2));
+            affect(env, elem->RES, res);
+            elem = elem->SUIV;
+        }            
+        /*recuperer l'environnement associé et affecté la valeur*/
+        else if (elem->OP == Af) {
+            initenv(&env, elem->ARG1,creer_type(0,0));
+            initenv(&env, elem->ARG2,creer_type(0,0));
+            affect(env, elem->ARG1, valch(env, elem->ARG2));
+            elem = elem->SUIV;
+        }            
+        else if (elem->OP == Jp) {
+            QUAD listStart = list.debut;
+            char *dest = elem->RES;
+            while (strcmp(listStart->ETIQ,dest) != 0)
+                listStart = listStart->SUIV;
+            elem=listStart;
+        }            
+        else if (elem->OP == Jz) {
+            QUAD listStart = list.debut;
+            char *dest = elem->RES;
+            if(valch(env, elem->ARG1) == 0){
+                while (strcmp(listStart->ETIQ,dest) != 0){
+                    listStart = listStart->SUIV;
+                }
+                elem=listStart;
+            }else{
+                elem = elem->SUIV;
+            }
+        } else if (elem->OP == St){
+            break;
+        } else if (elem->OP == Sk){
+            elem = elem->SUIV;
+        } else if (elem->OP == Ind){
+			affect(env,elem->RES,valchTab(env,elem->ARG1,atoi(elem->ARG2)));
+			elem = elem->SUIV;
+            break;
+        }
+        else if (elem->OP == AfInd){
+            affectTab(env,elem->ARG1,valch(env,elem->RES),atoi(elem->ARG2));
+            elem = elem->SUIV;
+            break; 
+        } /*else if (elem->OP == Param){
+            initenv(&P, elem->ARG1, creer_type(0,0));
+            affect(P, elem->ARG1, valch(G, elem->ARG2));
+            elem = elem->SUIV;
+            break;
+         }*/ else if (elem->OP == Call){
+            break;
+        }  else if (elem->OP == Ret){
+		     printf("break\n");
+		     break;
+        }
+    }
+
+    ecrire_env(env);
+
 
 }
+

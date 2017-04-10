@@ -1,5 +1,5 @@
 SRCBISON = ppascal.y
-SRCFLEX = $(SRCBISON:.y=.l)
+SRCFLEX = $(SRCBISON:.y=.l)  
 CBISON = $(SRCBISON:.y=bison.c)
 HBISON = $(CBISON:.c=.h)
 CFLEX = $(SRCFLEX:.l=flex.c)
@@ -26,13 +26,17 @@ util.o : src/util.c include/util.h environ.o
 environ.o : src/environ.c include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
-bilquad.o : src/bilquad.c include/bilquad.h include/environ.h $(CBISON)
+bilquad.o : src/bilquad.c src/util.c include/bilquad.h include/environ.h $(CBISON) 
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
 tradpp2c3a.o : src/tradpp2c3a.c include/bilquad.h include/util.h include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 	
-interppC3A: src/interppC3A.c include/bilquad.h include/util.h include/environ.h $(CBISON)
-	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
+interppC3A.c: src/interppC3A.l include/environ.h include/bilquad.h include/util.h
+	flex -o $@ $< 
+	
+interppC3A: interppC3A.c bilquad.o environ.o util.o
+	$(CC) -std=c99 -Wall -o $@ $^ -lfl
+
 clean:
 	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP)

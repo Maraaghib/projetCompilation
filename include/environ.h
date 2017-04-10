@@ -6,7 +6,8 @@
 /* type: tableau */
 typedef struct stype{
   int DIM;   /* dimension ; vaut 0 ssi type de base                           */
-  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */
+  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */\
+  int *tabval; /* necessaire pour la gestion des tableaux*/
 }type;
 
 typedef struct cellenv{
@@ -28,7 +29,9 @@ extern int ecrire_env(ENV rho);/* affiche l'environnement                       
 extern int eval(int op, int arg1, int arg2); /* retourne (arg1 op arg2)          */
 extern ENV rech(char *chaine, ENV listident);/* retourne la position de chaine   */
 extern int affect(ENV rho, char *var, int val);/* affecte val a la variable var  */
+extern int affectTab(ENV rho,char *var,int val,int index);/* affecte val a l'indice du tableau var*/
 extern int valch(ENV rho, char *var); /* valeur de var dans envirnt rho          */
+int valchTab(ENV rho, char* var, int index);
 extern void liberer_env(ENV e); /*Libére la cellule d'environnement */ 
 /* ------------------CONSTANTES -------------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable         */

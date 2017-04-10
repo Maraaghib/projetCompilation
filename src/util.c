@@ -318,6 +318,58 @@ BILFON concatfn(BILFON b1, BILFON b2){
   return concat(bfon->PARAM, bfon->VARLOC);
   }*/
 
+char *nomop(int codop) {
+    switch(codop) {
+        case(I): return("I");
+        case(V): return("V");
+        case(Mp): return("Mp");
+        case(Af): return("Af");
+        case(Sk): return("Sk");
+        case(Se): return("Se");
+        case(If): return("If");
+        case(Th): return("Th");
+        case(El): return("El");
+        case(Wh): return("Wh");
+        case(Do): return("Do");
+        case(Pl): return("Pl");
+        case(Mo): return("Mo");
+        case(Mu): return("Mu");
+        case(And): return("And");
+        case(Or): return("Or");
+        case(Not): return("Not");
+        case(Lt): return("Lt");
+        case(Eq): return("Eq");
+        case(Ind): return("Ind");
+        case(Afc): return("Afc");
+        case(AfInd): return("AfInd");
+        case(St): return("St");
+        case(Jp): return("Jp");
+        case(Jz): return("Jz");
+        case(Param): return("Param");
+        case(Call): return("Call");
+        case(Ret): return("Ret");
+        /*case(halt): return("halt");
+        case(nop): return("nop");
+        case(rrmovl): return("rrmovl");
+        case(irmovl): return("irmovl");
+        case(rmmovl): return("rmmovl");
+        case(mrmovl): return("mrmovl");
+        case(addl): return("addl");
+        case(subl): return("subl");
+        case(andl): return("andl");
+        case(xorl): return("xorl");
+        case(jmp): return("jmp");
+        case(je): return("je");
+        case(jg): return("jg");
+        case(call): return("call");
+        case(ret): return("ret");
+        case(pushl): return("pushl");
+        case(popl): return("popl");*/
+        case(0): return("");                   /* code 0: directive assembleur y86 */
+        default: return(NULL);
+    };
+}
+
 void ecrire_bilfon(BILFON bfn){
   if(bfn != NULL){
     LFON curseur = bfn->debut;
