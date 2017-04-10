@@ -7,6 +7,8 @@
 #include "util.h"
 #include "ppascalbison.h"
 
+/* De jolies couleurs                                                 */
+#define RED "\x1b[31m"
 #define BLUE "\x1b[34m"
 #define MAGENTA "\x1b[35m"
 #define RESET "\x1b[0m"
@@ -18,8 +20,8 @@ int TAS[TAILLEMEM];
 int ADR[TAILLEADR];
 /* TAL[i]=taille du tab i                                             */
 int TAL[TAILLEADR];
-int ptasl = 1; /* premiere place libre dans TAS[]                       */
-int padrl = 1; /* premiere place libre dans ADR[]                       */
+int ptasl = 1; /* premiere place libre dans TAS[]                     */
+int padrl = 1; /* premiere place libre dans ADR[]                     */
 /*--------------------------------------------------------------------*/
 /* ----------------------traitement--memoire--------------------------*/
 void init_memoire(){
@@ -32,9 +34,9 @@ void init_memoire(){
    TAL[i] = 0;
  }
 }
-/* decrit la memoire: */
-/* ADR[i]: adresse du tableau i dans le TAS */
-/* TAL[i]: taille du tableau i; de ADR[i] a ADR[i] + TAL[i] */
+/* decrit la memoire:                                               */
+/* ADR[i]: adresse du tableau i dans le TAS                         */
+/* TAL[i]: taille du tableau i; de ADR[i] a ADR[i] + TAL[i]         */
 /* TAS: tableau (statique) contenant tous les tableaux (dynamiques) */
 void ecrire_memoire(int maxadr, int maxtal, int maxtas){
   int i;
@@ -83,19 +85,16 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
           sem(&fpos->VARLOC, &bfon, fpos->CORPS);
         pos = rech(fpos->ID, fpos->VARLOC->debut);
         return pos->VAL;
-        break;
       case V:                         /* variable        */
 				if ((*fon)->debut != NULL){
 					pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->VARLOC->debut);
 					if (pos == NULL)
 						pos = rech2(noeud->ETIQ, (*env)->debut, (*fon)->debut->PARAM->debut);
-          printf(BLUE "CAS FONCTION %s : %p\n" RESET,noeud->ETIQ, pos);
         } else {
 					pos = rech(noeud->ETIQ, (*env)->debut);
-          printf(BLUE "CAS AUTRE\n" RESET);
         }
         if (pos != NULL)
-          return pos->VAL;          /* env(var)     */
+          return pos->VAL;            /* env(var)        */
         return EXIT_FAILURE;
       case NewAr:                     /*creation tableau */
         taille = semval(env, fon, noeud->droit);
@@ -109,35 +108,37 @@ int semval(BILENV *env, BILFON *fon, Noeud *noeud){
     return EXIT_FAILURE;
 }
 
-/* semantique op a grands pas des commandes                      */
+/* semantique op a grands pas des commandes                       */
 /* fait agir noeud sur env, le  modifie                           */
 void sem(BILENV *env, BILFON *fon, Noeud *noeud){
   char *lhs;
   int rhs, cond;
   LFON fpos;
+  BILFON bfon;
   if (noeud != NULL){
     switch(noeud->codop){
       case Mp:
         sem(env, fon, noeud->gauche);
         break;
+      case T_fon: // cas des procedures
+        fpos = rechfon(noeud->ETIQ, (*fon)->debut);
+        bfon = creer_bilfon(fpos);
+        assert(fpos != NULL);
+        affectParam(fpos->PARAM->debut,env, noeud->gauche);
+        if (fpos != NULL)
+          sem(env, fon, fpos->CORPS);
+        break;
       case Af:
         if (noeud->gauche->codop == V){        /* affectation a une variable */
           lhs = noeud->gauche->ETIQ;
-          //printf("lhs vaut %s \n", lhs);
           rhs = semval(env, fon, noeud->droit);
-          //printf("rhs vaut %d \n", rhs);
-          printf(BLUE "Af : %p\n" RESET, (*fon)->debut);
-          if (noeud->droit->codop == T_fon){
+          if (noeud->droit->codop == T_fon){ // cas des fonctions
             fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
             if (fpos != NULL)
               affectb(*env, fpos->VARLOC, lhs, rhs);
-            } else
-              affect((*env)->debut, lhs, rhs);
-            printf(MAGENTA);
-            ecrire_bilfon(*fon);
-            printf(RESET"\n");
+          } else
+            affect((*env)->debut, lhs, rhs);
         } else {
-          printf(BLUE "AF : %p\n" RESET, (*fon)->debut);
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           int tab = semval(env, fon, noeud->gauche->gauche);
           int ind = semval(env, fon, noeud->gauche->droit);
@@ -176,7 +177,6 @@ void affectParam(ENV param, BILENV *env, Noeud *noeud){
       pos = rech(noeud->ETIQ, (*env)->debut);
       if (pos != NULL){
         int rhs = pos->VAL;
-        printf("RHS VAUT : %s\n", noeud->ETIQ);
         param->VAL = rhs;
         suiv = param->SUIV;
       }
@@ -193,7 +193,6 @@ void affectParam(ENV param, BILENV *env, Noeud *noeud){
   affectParam(suiv, env, noeud->gauche);
   suiv = param->SUIV;
   affectParam(suiv, env, noeud->droit);
-
   ecrire_env(param);
   return ;
 }
