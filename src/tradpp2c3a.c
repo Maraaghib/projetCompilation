@@ -8,6 +8,8 @@
 #include "util.h"
 #include "environ.h"
 #include "../ppascalbison.h"
+
+char *strdup(const char *s);
 /* iimp.tab.h APRES arbre,h, sinon le type NOE est inconnu de gcc    */
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
@@ -62,7 +64,7 @@ BILQUAD normal(BILQUAD bq) {
 }
 
 /* traduit entier (= codop) vers chaine (= nom operation)  */
-char *nomop(int codop) {
+/*char *nomop(int codop) {
     switch(codop) {
         case(I): return("I");
         case(V): return("V");
@@ -91,6 +93,8 @@ char *nomop(int codop) {
         case(Jz): return("Jz");
         case(Param): return("Param");
         case(Call): return("Call");
+        case(Dep): return("Dep");
+        case(Def): return("Def");
         case(Ret): return("Ret");
         /*case(halt): return("halt");
         case(nop): return("nop");
@@ -108,11 +112,11 @@ char *nomop(int codop) {
         case(call): return("call");
         case(ret): return("ret");
         case(pushl): return("pushl");
-        case(popl): return("popl");*/
-        case(0): return("");                   /* code 0: directive assembleur y86 */
+        case(popl): return("popl");
+        case(0): return("");                   //code 0: directive assembleur y86 
         default: return(NULL);
     };
-}
+}*/
 
 
 /* affiche le quadruplet (pour generer code) avec separateur":" ;
@@ -161,6 +165,10 @@ void ecrire_sep_bilquad(BILQUAD bq) {
 
 /* traduit une (expression ou commande) en biliste de quadruplets */
 /* met a jour l'environnement (var globale)                      */
+// Faire une fonction qui traduit un Environnement (BILENV.debut) en BILQUAD
+// Faire une focntion qui traduit un
+int nparam = 0; // Le nombre de paramètres à passer à la fonction appelée
+
 BILQUAD pp2quad(Noeud* ec) {
     extern ENV envrnt;
     BILQUAD bilq1, bilq2, bilexp, bilres; /* trad de: fg, fd, expression, resultat */
@@ -176,7 +184,7 @@ BILQUAD pp2quad(Noeud* ec) {
     switch(ec->codop) {
       // printf("Dans switch !\n");
         /* CAS: ec est une EXPRESSION */
-        case Pl: case Mo: case Mu: case And: case Or:                 /* operation binaire */
+        case Pl: case Mo: case Mu: case And: case Or: case Lt: case Eq:                /* operation binaire */
             /* les ingredients */
             netiq = gensym("ET");
             newop = ec->codop;
@@ -264,7 +272,11 @@ BILQUAD pp2quad(Noeud* ec) {
             break;
         /* CAS: ec est une COMMANDE */
         case Mp:
-            bilq1 = pp2quad(ec->gauche);
+            // if (ec->droit != NULL) { // Au cas où il n'y a pas de fonctoins dans le programme
+                // bilq1 = pp2quad(ec->droit); // Pour les fonctions
+            // }
+            // Dans tous les cas
+            bilq2 = pp2quad(ec->gauche); // Pour le programme principal
             /* les ingredients */
             netiq = gensym("ET");
             newop = St;
@@ -273,8 +285,17 @@ BILQUAD pp2quad(Noeud* ec) {
             nres = NULL;
             /* le quadruplet final: stop  (pas d'adresse de resultat) */
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
-            bilq2 = creer_bilquad(nquad);
-            bilres = concatq(bilq1, bilq2);
+            bilres = creer_bilquad(nquad);
+
+
+            // if (ec->droit != NULL) { // Au bcas où il n'y a pas de fonctoins dans le programme
+                // bilq2 = concatq(bilq1, bilq2);
+                // bilres = concatq(bilq2, bilres);
+            // }
+            // else {
+                bilres = concatq(bilq2, bilres);
+            // }
+
             break;
         case Af:
             /* les ingredients */
@@ -373,6 +394,120 @@ BILQUAD pp2quad(Noeud* ec) {
             nquad = creer_quad(netiq, newop, narg1, narg2, nres);
             /* nouvelle biliste */
             bilres = concatq(bilres, creer_bilquad(nquad));
+            break;
+        case NewAr:
+
+            bilq1 = pp2quad(ec->droit); // L'indice du tableau
+            /* les ingredients */
+            netiq = gensym("ET");
+            newop = Afc;
+            narg1 = Idalloc();
+            // printf("case I: ec->ETIQ = %s\n", ec->ETIQ);
+            sprintf(narg1,"%s", ec->ETIQ);
+            narg2 = NULL;
+            nres = gensym("TAB");
+            /* on insere le nom de const dans l' environnement */
+            // initenv(&envrnt, nres, 0); // Le 0 juste ajouté à titre indicatif. A changer !
+            /* le quadruplet: ETnum, Afc, chaineconst,-, CTnum */
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            bilres = creer_bilquad(nquad);
+            // printf("J'ai fini avec case I\n");
+            break;
+        case Ind:
+            bilq1 = pp2quad(ec->droit); // L'indice du tableau
+            bilq2 = pp2quad(ec->gauche); // Le tableau
+
+            netiq = gensym("ET");
+            newop = Ind;
+            narg1 = ec->gauche->ETIQ;
+            narg2 = strdup(bilq2.fin->RES);
+            nres = gensym("TAB");
+
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            bilres = creer_bilquad(nquad);
+            /* la suite de quadruplets */
+            bilq2 = concatq(bilq1, bilq2);
+            bilres = concatq(bilq2, bilres);
+            break;
+        case AfInd:
+            bilq1 = pp2quad(ec->droit); // L'indice du tableau
+            bilq2 = pp2quad(ec->gauche); // Le tableau
+
+            netiq = gensym("ET");
+            newop = AfInd;
+            narg1 = ec->gauche->ETIQ;
+            narg2 = strdup(bilq2.fin->RES);
+            nres = gensym("TAB");
+
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            bilres = creer_bilquad(nquad);
+            /* la suite de quadruplets */
+            bilq2 = concatq(bilq1, bilq2);
+            bilres = concatq(bilq2, bilres);
+            break;
+        case Dep: case Def:
+            /* les ingredients */
+            netiq = ec->ETIQ;
+            newop = ec->codop;
+            narg1 = NULL;
+            narg2 = NULL;
+            nres = NULL;
+            /* le quadruplet final: stop  (pas d'adresse de resultat) */
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            bilres = creer_bilquad(nquad);
+
+            bilq1 = pp2quad(ec->droit); // Pour le programme principal
+            bilres = concatq(bilq1, bilres);
+            break;
+        case T_fon:
+            bilq1 = pp2quad(ec->gauche);
+            netiq = gensym("ET");
+            newop = Call;
+            narg1 = strdup(ec->ETIQ);
+            narg2 = Idalloc();
+            sprintf(narg2, "%d", nparam);
+            nparam = 0; // On le réinitialise pour un autre appel
+            nres = NULL;
+
+            nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            /* nouvelle biliste */
+            bilres = concatq(bilq1, creer_bilquad(nquad));
+            break;
+        case Virgule:
+            if (ec->gauche != NULL) {
+                bilq1 = pp2quad(ec->gauche);
+                nparam ++;
+
+                netiq = gensym("ET");
+                newop = Param;
+                narg1 = strdup(ec->gauche->ETIQ);
+                narg2 = strdup("0"); // CAlculer la  valeur de l'arg2 à partir d'un environnemt
+                nres = NULL;
+
+                nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+            }
+            /* nouvelle biliste */
+            // bilq1 = concatq(bilq1, creer_bilquad(nquad));
+
+            if (ec->droit != NULL && ec->gauche != NULL) {
+                bilq2 = pp2quad(ec->droit);
+
+                netiq = gensym("ET");
+                newop = Param;
+                narg1 = strdup(ec->droit->ETIQ);
+                narg2 = strdup("0");
+                nres = NULL;
+
+                nquad = creer_quad(netiq, newop, narg1, narg2, nres);
+                /* nouvelle biliste */
+                bilq2 = concatq(bilq2, creer_bilquad(nquad));
+                bilres = concatq(bilq1, bilq2);
+            }
+            else {
+                bilres = concatq(bilq1, creer_bilquad(nquad));
+            }
+
+
             break;
         default: break;
     };

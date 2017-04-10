@@ -1,13 +1,13 @@
 SRCBISON = ppascal.y
-SRCFLEX = $(SRCBISON:.y=.l)
+SRCFLEX = $(SRCBISON:.y=.l)  
 CBISON = $(SRCBISON:.y=bison.c)
 HBISON = $(CBISON:.c=.h)
 CFLEX = $(SRCFLEX:.l=flex.c)
 CDEP = util.c environ.c bilquad.c tradpp2c3a.c interp.c asem.c
 ODEP = $(CDEP:.c=.o)
 INCLUDE = -I include/
-EXE = ppascal
-CFLAGS = -g -lfl -Wunused-variable
+EXE = ppascal interppC3A
+CFLAGS = -g -lfl -Wunused-variable 
 
 all : $(EXE)
 
@@ -32,11 +32,18 @@ asem.o : src/asem.c include/asem.h environ.o util.o
 interp.o : src/interp.c include/interp.h util.o
 	gcc -c -std=c99 $(INCLUDE) -I./ -g -o $@ $<
 
-bilquad.o : src/bilquad.c include/bilquad.h include/environ.h $(CBISON)
+bilquad.o : src/bilquad.c src/util.c include/bilquad.h include/environ.h $(CBISON) 
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
 tradpp2c3a.o : src/tradpp2c3a.c include/bilquad.h include/util.h include/environ.h $(CBISON)
 	gcc -c -std=c99 $(INCLUDE) -g -o $@ $<
 
+interppC3A.c: src/interppC3A.l include/environ.h include/bilquad.h include/util.h
+	flex -o $@ $< 
+
+interppC3A: interppC3A.c bilquad.o environ.o util.o
+	$(CC) -std=c99 -Wall -o $@ $^ -lfl
+
 clean:
-	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP)
+	rm -f $(CBISON) $(CFLEX) $(EXE) $(HBISON) $(ODEP) interppC3A.c
+	rm -f rapport.aux rapport.log rapport.out rapport.toc
