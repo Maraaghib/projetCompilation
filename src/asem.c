@@ -136,13 +136,15 @@ type *calcul_type(BILENV rho_gb, Noeud *noeud, int ligne){
           type_copy(tp, noeud->typeno);
         return tp;
       case Af:                                                     /* affectation */
-        if (type_eq(noeud->gauche->typeno,noeud->droit->typeno) == 0){/* type(lhs) <> type(rhs)    */
-          type_copy(noeud->typeno,terr); /* affecte type                        */
-          typ_error("affectation de types incoherents ", ligne);
-          return terr;
-        } else                                     /* type(lhs) == type(rhs)      */
-          type_copy(noeud->typeno, creer_type(0,T_com));
-        return tp;
+		if (noeud->gauche != NULL && noeud->droit != NULL){
+			if (type_eq(noeud->gauche->typeno,noeud->droit->typeno) == 0){/* type(lhs) <> type(rhs)    */
+			type_copy(noeud->typeno,terr); /* affecte type                        */
+			typ_error("affectation de types incoherents ", ligne);
+			return terr;
+			}
+		} else                                     /* type(lhs) == type(rhs)      */
+			type_copy(noeud->typeno, creer_type(0,T_com));
+			return tp;
       case Se:
         tcom = creer_type(0,T_com);         /* type  commande               */
         type_copy(noeud->typeno,tcom);

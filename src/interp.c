@@ -132,12 +132,14 @@ void sem(BILENV *env, BILFON *fon, Noeud *noeud){
         if (noeud->gauche->codop == V){        /* affectation a une variable */
           lhs = noeud->gauche->ETIQ;
           rhs = semval(env, fon, noeud->droit);
-          if (noeud->droit->codop == T_fon){ // cas des fonctions
-            fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
-            if (fpos != NULL)
-              affectb(*env, fpos->VARLOC, lhs, rhs);
-          } else
-            affect((*env)->debut, lhs, rhs);
+          if (noeud->droit != NULL){
+						if (noeud->droit->codop == T_fon){ // cas des fonctions
+							fpos = rechfon(noeud->droit->ETIQ, (*fon)->debut);
+							if (fpos != NULL)
+								affectb(*env, fpos->VARLOC, lhs, rhs);
+						} else
+							affect((*env)->debut, lhs, rhs);
+					}
         } else {
           assert(noeud->gauche->codop == Ind);/* affectation a un tableau */
           int tab = semval(env, fon, noeud->gauche->gauche);
