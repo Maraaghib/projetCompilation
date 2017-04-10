@@ -17,6 +17,8 @@ ENV Envalloc()
   e->ID = Idalloc();
   e->VAL = 0;
   e->SUIV = NULL;
+  e->typeno->DIM;
+  e->typeno->TYPEF; 
   return e;
 }
 
@@ -47,15 +49,14 @@ int initenv(ENV *prho,char *var, type* typeno)
 }
 /* retourne (arg1 op arg2) */
 int eval(int op, int arg1, int arg2)
-int res;
-{switch(op)
+{int res;switch(op)
     {case Pl:
 	     return(arg1 + arg2);
     case Mo:
       return(arg1 - arg2);
     case Mu:
       return(arg1 * arg2);
-    case And: case Not:
+    case And: 
       return (arg1 & arg2);
     case Or:
       return (arg1 | arg2);
@@ -92,17 +93,39 @@ int affect(ENV rho, char *var, int val)
   else
     return(EXIT_FAILURE);
 }
+/*  affecte val a l'indice du tableau var*/
+int affectTab(ENV rho,char *var,int val,int index){
+	ENV pos;
+	pos=rech(var,rho);
+	if(pos != NULL){
+		if(index > pos->typeno->DIM-1){
+			printf("erreur %s : indice hors du tableau",pos->ID);
+			return(EXIT_FAILURE);
+			}
+		pos->typeno->tabval[index]=val;
+		return(EXIT_SUCCESS);
+		}
+	else
+		return(EXIT_FAILURE);
+	}
 
 /* affiche l'environnement */
 int ecrire_env(ENV rho)
 { if (rho==NULL)
     {printf("fin d' environnement \n");
       return(EXIT_SUCCESS);}
-  else
-    {printf("variable %s valeur %d \n",rho->ID,rho->VAL);
+      int bin =rho->typeno->DIM;printf("%d",bin);
+ /* else {if(rho->typeno->DIM == 0) //entier
+			printf("variable %s valeur %d \n",rho->ID,rho->VAL);
+		else{
+		// tableaux
+		printf("tableaux %s : \n",rho->ID);
+		for(int i=0;i<rho->typeno->DIM;i++)
+			printf("T[%d] : %d \n",i,rho->typeno->tabval[i]);
+		}
       ecrire_env(rho->SUIV);
       return(EXIT_SUCCESS);
-    };
+    };*/
 }
 
 /* valeur de var dans rho */
@@ -114,7 +137,14 @@ int valch(ENV rho, char *var)
   else
     return(0);
 }
-
+int valchTab(ENV rho, char* var, int index){
+   ENV pos;
+   pos=rech(var,rho);// adresse de la cellule contenant var 
+   if (pos != NULL)
+     return(pos->typeno->tabval[index]);
+    else
+      return(0);
+ }
 
 void liberer_env(ENV e){
   free(e->ID);
