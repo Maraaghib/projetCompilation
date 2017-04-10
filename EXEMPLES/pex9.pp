@@ -15,4 +15,4 @@ defun foo(X : integer, Y : boolean):integer
 X2 := 10;
 if true
    then proo(X2,true)
-   else X1 := foo(X2,false)
+   else foo(X2,false)

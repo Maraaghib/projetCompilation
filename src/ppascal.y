@@ -70,7 +70,12 @@
 %%
 MP: L_vart LD C {
                   env_global = $1;
-                  syntree = create_noeud($2->debut->CORPS, $3, "Mp", Mp, creer_type(0,T_com));
+                  /*if($2 == NULL) {*/
+                      syntree = create_noeud($3, NULL, "Mp", Mp, creer_type(0,T_com));
+                  /*}*/
+                  /*else {*/
+                      /*syntree = create_noeud($3, fonc2noeud($2->debut), "Mp", Mp, creer_type(0,T_com));*/
+                  /*}*/
                   /* syntree = create_noeud($1, create_noeud(create_noeud($2, NULL, "L_D", L_D, creer_type(0,0)), create_noeud($3, creer_type(0, 0), "", 0, creer_type(0,T_com)), "", 0, creer_type(0, 0)), "Mp", Mp, creer_type(0,T_com)); */
                   //ecrire_bilenv($1);
                   //print_tree_ter($3); printf("\n");
@@ -88,25 +93,25 @@ E: E Pl E {$$ = create_noeud($1,$3,"Pl",Pl,creer_type(0,T_int));}
 | E And E {$$ = create_noeud($1,$3,"And",And,creer_type(0,T_bool));}
 | Not E  {$$ = create_noeud($2,NULL,"Not",Not,creer_type(0,T_bool));}
 | PO E PF {$$ = $2;}
-| I {$$ = create_noeud(NULL,NULL,$1,I,creer_type(0,T_int));} // Hamza: J'ai remplacé le 4ème argument (T_int) par I. Sinon, le compilateur ne marche pas
+| I {$$ = create_noeud(NULL,NULL,$1,I,creer_type(0,T_int));}
 | V {ENV pos = rech2($1,env_cour->debut,env_global->debut);
    if(pos == NULL){
      yyerror("Variable non déclarée");
      exit(EXIT_FAILURE);
      }
-   $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);} // Hamza: J'ai remplacé le 4ème argument (pos->typeno->TYPEF) par V. Sinon, le compilateur ne marche pas
+   $$ = create_noeud(NULL,NULL,pos->ID,V,pos->typeno);}
 
 | True {$$ = create_noeud(NULL,NULL,"true",True,creer_type(0,T_bool));}
 | False {$$ = create_noeud(NULL,NULL,"false",False,creer_type(0,T_bool));}
-| NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = NULL;}
+| NewAr TP CO E CF /*NewAr TP [ E ] */{$$ = create_noeud(NULL, $4, "NewAr", NewAr, creer_type(1, T_int));}
 
-| V PO L_args PF /* "X :=" V ( L_args ): Quand on appelle une focntion qui doit renvoyer une valeur*/{char* s = strdup("");sprintf(s, "Ap %s", $1);printf("ONE : %s\n", s);
+| V PO L_args PF /* "X :=" V ( L_args ): Quand on appelle une focntion qui doit renvoyer une valeur*/{
   LFON pos = rechfon($1,liste_fct->debut);
   if(pos == NULL){
     yyerror("Fonction/Procedure non déclarée");
     exit(EXIT_FAILURE);
   }
-  $$ = create_noeud($3,NULL,$1,T_fon,pos->typeno);
+  $$ = create_noeud($3, NULL,$1,T_fon,pos->typeno);
  }
 | Et {$$ = $1;}
 ;
@@ -143,22 +148,22 @@ C: C Se C {$$ = create_noeud($1,$3,"Se",Se,creer_type(0,T_com));}
 | If E Th C El C {
   /*$$ = create_noeud($2,create_noeud($4,create_noeud($6,NULL,"El",El,creer_type(0,T_com)),"Th",Th,creer_type(0,T_com)),"If",If,creer_type(0,T_com));*/
     $$ = create_noeud($2, create_noeud($4, $6, "", 0, creer_type(0, T_com)), "IfThEl", If, creer_type(0, T_com));
-    $$=Nalloc();
-    $$->gauche=$2;         /* booleen */
-    $$->droit=Nalloc();   /* alternative */
-    $$->droit->ETIQ="";   /* champ inutile */
-    $$->droit->gauche=$4;     /* branche true */
-    $$->droit->droit=$6;     /* branche false */
-    $$->ETIQ=malloc(2);
-    $$->ETIQ = strdup("IfThEl");
-    $$->codop=If;
+    /*$$=Nalloc();*/
+    /*$$->gauche=$2;          booleen */
+    /*$$->droit=Nalloc();    alternative */
+    /*$$->droit->ETIQ="";    champ inutile */
+    /*$$->droit->gauche=$4;      branche true */
+    /*$$->droit->droit=$6;      branche false */
+    /*$$->ETIQ=malloc(2);*/
+    /*$$->ETIQ = strdup("IfThEl");*/
+    /*$$->codop=If;*/
  }
 
 | Wh E Do C {
   $$ = create_noeud($2,create_noeud($4,NULL,"Do",Do,creer_type(0,T_com)),"Wh",Wh,creer_type(0,T_com));
  }
 
-| V PO L_args PF /*V ( L_args ) : Quand on appelle une procédure qiu ne renvoie rien (Pas d'affectation du resultat à une variable)*/{printf("TWO : %s\n", $1);
+| V PO L_args PF /*V ( L_args ) : Quand on appelle une procédure qiu ne renvoie rien (Pas d'affectation du resultat à une variable)*/{
   LFON pos = rechfon($1,liste_fct->debut);
   if(pos == NULL){
     yyerror("Fonction/Procedure non déclarée");
@@ -175,7 +180,7 @@ L_args: %empty {$$ = NULL;}
 
 L_argsnn: E {$$ = create_noeud($1,NULL,"ArgAp",Virgule,creer_type(0,T_com));}
 /* foo (expression, expression)  | Appel d'une fonction */
-| E Virgule L_argsnn {printf("UN\n");$$ = create_noeud($1,$3,"ArgAp",Virgule,creer_type(0,T_com)); }
+| E Virgule L_argsnn {$$ = create_noeud($1,$3,"ArgAp",Virgule,creer_type(0,T_com)); }
 ;
 
 L_argt: %empty {$$ = NULL;}
@@ -183,7 +188,7 @@ L_argt: %empty {$$ = NULL;}
 
 L_argtnn: Argt {$$ = $1;}
 /* foo(variable1: type1 , variable2: type2) | Entête d'une fonction */
-| L_argtnn Virgule Argt {printf("DEUX\n");$$ = concat($1,$3);}
+| L_argtnn Virgule Argt {$$ = concat($1,$3);}
 ;
 
 Argt: V DPoints TP {
@@ -215,6 +220,7 @@ D_entp: Dep V PO L_argt PF /*Dep NPro ( L_argt )*/{
   if(env_cour == NULL)
     env_cour = bilenv_vide();
   inbilenv(env_cour,$2,creer_type(0,T_com));/*Ajout du nom de la procedure dans les vars locals*/
+
  }
 ;
 
@@ -265,17 +271,28 @@ int main(int argc, char **argv){
   type_base  = creer_type(0,T_bot);
   liste_fct = bilfon_vide();
 
-  /* Compiler Pseudo-Pascal to C3A */
-  /*printf("\n L'arbre de syntaxe astraite: \n");
-  prefix(syntree);*/
   yyparse();
-  /*printf("*****************| JE SUIS LA ! ;) : %p|*****************\n", syntree);*/
-  /*printf("Avant pp2quad\n");*/
+
+  /* Compiler Pseudo-Pascal to C3A */
+
+  LFON curseur = liste_fct->debut;
+  printf("\n******* Le code C3A des fonctions Pseudo-Pascal: *******\n\n");
+  while (curseur != NULL) {
+      int type = (curseur->typeno->TYPEF == T_pro) ? Dep : Def; // C'est une fonction ou une procédure ?
+      QUAD quad = creer_quad(curseur->ID, type, NULL, NULL, NULL); // La ligne pour l'en-tête de la fonction
+      BILQUAD bilq1 = creer_bilquad(quad);
+      printf("\n");
+      ecrire_sep_bilquad(bilq1);
+      printf("\n");
+      BILQUAD bilq2 = pp2quad(fonc2noeud(curseur));
+      ecrire_sep_bilquad(bilq2);
+      curseur = curseur->SUIV;
+  }
+
   BILQUAD bilq = pp2quad(syntree);
-  /*printf("Après pp2quad\n");*/
    printf("\n\n");
-  printf("\n******* Le code C3A du programme Pseudo-Pascal: *******\n\n");
-  ecrire_sep_bilquad(bilq);
+  printf("\n******* Le code C3A du programme principal Pseudo-Pascal: *******\n\n");
+      ecrire_sep_bilquad(bilq);
   printf("\n");
   /*********************************/
 

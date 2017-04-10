@@ -48,6 +48,8 @@ Noeud *create_noeud(Noeud *,Noeud *,char *,int,type*); // A RECUP
 void print_tree(Noeud *, FILE *);  // A RECUP
 /*Affiche l'arbre à partir du noeud dans le terminal */
 void print_tree_ter(Noeud *);  // A RECUP
+// Convertit une LFON en NOEUD
+extern Noeud* fonc2noeud(LFON lfon);
 
 
 /*------------------FONCTIONS -----------------------------------------------*/

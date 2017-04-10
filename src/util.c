@@ -57,6 +57,10 @@ void print_tree_ter(Noeud* n) {
 
 }
 
+extern Noeud* fonc2noeud(LFON lfon) {
+    return create_noeud(lfon->CORPS->gauche, lfon->CORPS->droit, lfon->CORPS->ETIQ, lfon->CORPS->codop, lfon->CORPS->typeno);
+}
+
 /*****************Biliste d'environnement *****************/
 
 int type_eq(type* t1, type* t2){
@@ -321,7 +325,7 @@ BILFON concatfn(BILFON b1, BILFON b2){
 void ecrire_bilfon(BILFON bfn){
   if(bfn != NULL){
     LFON curseur = bfn->debut;
-    
+
     while(curseur != NULL){
       ecrire_fon(curseur);
       curseur = curseur->SUIV;
