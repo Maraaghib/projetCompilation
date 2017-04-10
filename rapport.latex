@@ -7,13 +7,117 @@
 \begin{document}
 \tableofcontents
 \newpage
+\section{Les fonctions utiles et les structures }
+Les fonctions utils sont seulements les fonctions fournies dans le fichier util.h auquel on a rajouté nos fonctions de traitement d'arbre .
+\subsection{Structure Noeud}
+\begin{verbatim}
+
+struct Noeud{
+  char *ETIQ;
+  int codop; // correspond au valeur de l'enum contenu dans ppasclabison.h
+  type* typeno; /*[0,T_com](si commande) ou [k,(T_int,T_boo)] (si expression) */
+  Noeud *droit;
+  Noeud *gauche;
+};
+
+typedef struct Noeud Noeud;
+\end{verbatim}
+
+\subsection{Structures ListeFonction et BilisteFonction}
+La structure ListeFonction (LFON) permet des gerer les fonctions et de pouvoir y accer facilement.
+La strucure BilisteFonction permet de concaténer plus facilement les listes de fonctions.
+\begin{verbatim}
+/*Liste de fonctions*/
+typedef struct cellfon{
+  char *ID;
+  BILENV PARAM;    /* pametres formels types   */
+  BILENV VARLOC;   /* variables locales typees */
+  Noeud* CORPS;
+  type* typeno;
+  struct cellfon *SUIV;} *LFON;
+
+/* biliste de fonctions */
+typedef struct bilfon{
+  LFON debut;
+  LFON fin;}*BILFON;
+\end{verbatim}
+
+\subsection{Structures Environnement des Biliste d'Environnement}
+La structure Environnement permet de gérer les différent environement.
+La Biliste d'Environnement est là pour la même raison que la biliste de fonctions.
+\begin{verbatim}
+typedef struct cellenv{
+  char *ID;
+  type* typeno;
+  int  VAL;
+  struct cellenv *SUIV;} *ENV;
+
+/* biliste de var ou param */
+typedef struct bilenv{
+  ENV debut;
+  ENV fin;}*BILENV;
+\end{verbatim}
+
+\subsection{Structure type}
+
+Cette structure permet de stocker les types des fonctions et des variables, le champs DIM est la pour le cas des tableaux (ce champs vaut 0 si ce n'est pas un tableaux, >=1 sinon).
+
+\begin{verbatim}
+typedef struct stype{
+  int DIM;   /* dimension ; vaut 0 ssi type de base                           */
+  int TYPEF; /* type des cellules de plus petite dim: T_int ou T_boo ou T_com */\
+  int *tabval; /* necessaire pour la gestion des tableaux*/
+}type;
+
+\end{verbatim}
+
 \section{Analyse syntaxique}
 Pour cette partie, nous avons juste repris le langage proposé dans le sujet, nous avons juste rajouté des indiations a bison à propos de la façon de traité certaine instructions (telle que "Se" et "WhDo" et "IfThEl").
+
+Lors de l'analyse syntaxique, l'arbre et les différents environnement et la liste de fonctions/procédures se remplient.
+L'arbre est remplie en priorité à gauche (c.à.d. si un noeud de l'arbre doit avoir un seul fils il se situera à gauche).
 
 
 \section{Analyse sémantique}
 
 \section{Interpreteur C3A }
-
+Dans cette partie,nous avons reutilisé une bonne partie du code de l'interpreteur C3A du mini-projet.
+Elle interpréte principalement cas par cas les différents opérateurs comme indiqué dans le sujet : Pl, Mo, Mu, And, Or, Lt, Ind, Not, Af, Afc, AfInd, Sk, Jp, Jz, St, Param, Call, Ret.
+En plus des token de base que nous avions déjà vu precédement dans le mini-projet la difficulté qui s'ajoute cette fois ci reste la gestion des environnements principalement
+pour le cas des commandes Param, Call et Ret.
+Nous avions opté à gérer cela en stockant l'environnement global avant l'appel d'une fonction.Cette dernière à bien son propre environnement qui lui est local.
+L'environnement local s'occupera d'excuter les intructions de l'appel de fonction et retournera une variable de retour de type Quad qui est un quadruplet resultant du Call.
+Un environnement temporaire est prévu pour la gestion de paramètres de la fonction.Il servira de stockage temporaire.
+Le bout de code suivant illustre le mecanisme du cas appel de fonction :
+\begin{verbatim}
+ ENV env= Envalloc(); /* env local*/
+ ENV G =env; /* env global*/
+ ENV L, P; /* env tmp de gestion*/
+ else if (elem->OP == Param){
+            initenv(&P, elem->ARG1, creer_type(0,T_int));
+            affect(P, elem->ARG1, valch(G, elem->ARG2));
+            elem = elem->SUIV;
+            break;
+         }
+else if (elem->OP == Call){
+		L = copier_env(env);
+                liberer_env(P);
+                varloc = 1;
+                retvar = elem->RES;
+                retaddr = elem->SUIV;
+                elem = rechbq(elem->ARG1,list);
+            break;
+        }
+\end{verbatim}
+Dans le cas du Ret on cherchera juste à recupérer le quadruplet resultant :
+\begin{verbatim}
+else if (elem->OP == Ret){
+		     affect(G, retvar, valch(L, elem->ARG1));
+                                varloc = 0;
+                                 elem = retaddr;
+		     break;
+        }
+\end{verbatim}
+A la fin on oubliera pas d'afficher l'environnement.
 \section{Compilateur PPascal}
 \end{document}
